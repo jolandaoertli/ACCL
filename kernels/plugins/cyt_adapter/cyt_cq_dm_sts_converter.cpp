@@ -36,8 +36,8 @@ void cyt_cq_dm_sts_converter(hls::stream<cyt_ack_t> & cq_sts,
 #pragma HLS INTERFACE ap_ctrl_none port=return
 #pragma HLS PIPELINE II=1
 
-	enum fsmStateType {CYT_STS_0, CYT_STS_1, DM_STS_0, DM_STS_1};
-    static fsmStateType  fsmState = CYT_STS_0;
+	enum fsmStateType {CYT_STS, DM_STS_0, DM_STS_1};
+    static fsmStateType  fsmState = CYT_STS;
 
 	static cyt_ack_t cq_sts_word;
 
@@ -46,15 +46,8 @@ void cyt_cq_dm_sts_converter(hls::stream<cyt_ack_t> & cq_sts,
 
 	switch (fsmState)
     {
-		// the first state reads a cq_sts as a workaround to handle the 2-cycle burst of cq_sts signal
-		case CYT_STS_0:
-            if (!STREAM_IS_EMPTY(cq_sts))
-			{
-				STREAM_READ(cq_sts);
-				fsmState = CYT_STS_1;
-			}
-        break;
-		case CYT_STS_1:
+		// no workaround anymore
+		case CYT_STS:
 		 	if (!STREAM_IS_EMPTY(cq_sts))
 			{
 				cq_sts_word = STREAM_READ(cq_sts);
@@ -71,7 +64,7 @@ void cyt_cq_dm_sts_converter(hls::stream<cyt_ack_t> & cq_sts,
 					}
 				}
 				else{
-					fsmState = CYT_STS_0;
+					fsmState = CYT_STS;
 				}
 			}
 		break;
@@ -91,7 +84,7 @@ void cyt_cq_dm_sts_converter(hls::stream<cyt_ack_t> & cq_sts,
 
 					STREAM_WRITE(dm0_sts, dm_sts_word);
 
-					fsmState = CYT_STS_0; // todo: add the check of eop flag
+					fsmState = CYT_STS; // todo: add the check of eop flag
 				}
 		break;
 		case DM_STS_1:
@@ -110,7 +103,7 @@ void cyt_cq_dm_sts_converter(hls::stream<cyt_ack_t> & cq_sts,
 
 					STREAM_WRITE(dm1_sts, dm_sts_word);
 
-					fsmState = CYT_STS_0; // todo: add the check of eop flag
+					fsmState = CYT_STS; // todo: add the check of eop flag
 				}
 		break;
 		

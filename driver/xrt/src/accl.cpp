@@ -302,10 +302,10 @@ ACCLRequest *ACCL::copy(BaseBuffer *srcbuf, BaseBuffer *dstbuf, unsigned int cou
                  "sync_from_device() after waiting"
               << std::endl;
   }
-
-  if (from_fpga == false) {
+  //remove sync for copy_test
+  /*if (from_fpga == false) {
     srcbuf->sync_to_device();
-  }
+  }*/
 
   options.scenario = operation::copy;
   options.addr_0 = srcbuf;
@@ -319,9 +319,10 @@ ACCLRequest *ACCL::copy(BaseBuffer *srcbuf, BaseBuffer *dstbuf, unsigned int cou
 
   if (!run_async) {
     wait(handle);
-    if (to_fpga == false) {
+    //remove sync for copy_test
+    /*if (to_fpga == false) {
       dstbuf->sync_from_device();
-    }
+    }*/
     check_return_value("copy", handle);
   }
 
