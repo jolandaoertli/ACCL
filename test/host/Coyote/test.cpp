@@ -361,14 +361,14 @@ void exchange_qp(unsigned int master_rank, unsigned int slave_rank, unsigned int
 	{
 		std::cout<<"Local rank "<<local_rank<<" sending local QP to remote rank "<<slave_rank<<std::endl;
 		// Send the local queue pair information to the slave rank
-		MPI_Send(&(device->coyote_qProc_vec[slave_rank]->getQpair()->local), sizeof(fpga::ibvQ), MPI_CHAR, slave_rank, 0, MPI_COMM_WORLD);
+		MPI_Send(&(device->coyote_qProc_vec[slave_rank]->getQpair()->local), sizeof(coyote::ibvQ), MPI_CHAR, slave_rank, 0, MPI_COMM_WORLD);
 	}
 	else if (local_rank == slave_rank)
 	{
 		std::cout<<"Local rank "<<local_rank<<" receiving remote QP from remote rank "<<master_rank<<std::endl;
 		// Receive the queue pair information from the master rank
-		fpga::ibvQ received_q;
-		MPI_Recv(&received_q, sizeof(fpga::ibvQ), MPI_CHAR, master_rank, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+		coyote::ibvQ received_q;
+		MPI_Recv(&received_q, sizeof(coyote::ibvQ), MPI_CHAR, master_rank, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
 		// Copy the received data to the remote queue pair
 		device->coyote_qProc_vec[master_rank]->getQpair()->remote = received_q;
@@ -381,14 +381,14 @@ void exchange_qp(unsigned int master_rank, unsigned int slave_rank, unsigned int
 	{
 		std::cout<<"Local rank "<<local_rank<<" sending local QP to remote rank "<<master_rank<<std::endl;
 		// Send the local queue pair information to the master rank
-		MPI_Send(&(device->coyote_qProc_vec[master_rank]->getQpair()->local), sizeof(fpga::ibvQ), MPI_CHAR, master_rank, 0, MPI_COMM_WORLD);
+		MPI_Send(&(device->coyote_qProc_vec[master_rank]->getQpair()->local), sizeof(coyote::ibvQ), MPI_CHAR, master_rank, 0, MPI_COMM_WORLD);
 	}
 	else if (local_rank == master_rank)
 	{
 		std::cout<<"Local rank "<<local_rank<<" receiving remote QP from remote rank "<<slave_rank<<std::endl;
 		// Receive the queue pair information from the slave rank
-		fpga::ibvQ received_q;
-		MPI_Recv(&received_q, sizeof(fpga::ibvQ), MPI_CHAR, slave_rank, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+		coyote::ibvQ received_q;
+		MPI_Recv(&received_q, sizeof(coyote::ibvQ), MPI_CHAR, slave_rank, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
 		// Copy the received data to the remote queue pair
 		device->coyote_qProc_vec[slave_rank]->getQpair()->remote = received_q;
@@ -426,12 +426,12 @@ void configure_cyt_rdma(std::vector<rank_t> &ranks, int local_rank, ACCL::Coyote
 
 	// std::cout<<"Initializing QP connections..."<<std::endl;
 	// // create queue pair connections
-	// std::vector<fpga::ibvQp*> ibvQp_vec;
+	// std::vector<coyote::ibvQp*> ibvQp_vec;
 	// // create single page dummy memory space for each qp
 	// uint32_t n_pages = 1;
 	// for(int i=0; i<ranks.size(); i++)
 	// {
-	// 	fpga::ibvQp* qpConn = new fpga::ibvQp(device->coyote_qProc_vec[i], ranks[local_rank].ip, n_pages);
+	// 	coyote::ibvQp* qpConn = new coyote::ibvQp(device->coyote_qProc_vec[i], ranks[local_rank].ip, n_pages);
 	// 	ibvQp_vec.push_back(qpConn);
 	// 	// qpConn->getQpair()->print();
 	// }

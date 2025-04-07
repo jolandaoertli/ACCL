@@ -276,7 +276,7 @@ void CoyoteRequest::wait_kernel() {
 }
 
 CoyoteDevice::CoyoteDevice(): num_qp(0) {
-  this->coyote_proc = new fpga::cThread<std::any>(targetRegion, getpid(), 0);
+  this->coyote_proc = new coyote::cThread<std::any>(targetRegion, getpid(), 0);
 	std::cerr << "ACLL DEBUG: aquiring cProc: targetRegion: " << targetRegion << ", cPid: " << coyote_proc->getCtid() << std::endl;
 }
 
@@ -284,7 +284,7 @@ CoyoteDevice::CoyoteDevice(unsigned int num_qp): num_qp(num_qp) {
 
   for (unsigned int i=0; i<(num_qp+1); i++)
   {
-    fpga::cThread<std::any>* cproc = new fpga::cThread<std::any>(targetRegion, getpid(), 0);
+    coyote::cThread<std::any>* cproc = new coyote::cThread<std::any>(targetRegion, getpid(), 0);
     coyote_qProc_vec.push_back(cproc);
   }
 

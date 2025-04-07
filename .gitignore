@@ -28,3 +28,4 @@ coyote_build*
 *.ip_user_files
 *.cache
 *.srcs
+**/fpga_ips.txt
