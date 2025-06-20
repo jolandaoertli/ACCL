@@ -126,12 +126,15 @@ ACCLRequest *ACCL::send(BaseBuffer &srcbuf, unsigned int count,
   CCLO::Options options{};
 
   if (from_fpga == false) {
+    std::cout << "we're syncing in accl send" << std::endl;
     srcbuf.sync_to_device();
   }
 
   options.scenario = operation::send;
   options.comm = communicators[comm_id].communicators_addr();
   options.addr_0 = &srcbuf;
+  std::cout << "ACCL::send: srcbuf addr: " << &srcbuf<< std::endl;
+  std::cout << "accl src tag: " << tag << std::endl;
   options.count = count;
   options.root_src_dst = dst;
   options.tag = tag;
@@ -143,7 +146,6 @@ ACCLRequest *ACCL::send(BaseBuffer &srcbuf, unsigned int count,
     wait(handle);
     check_return_value("send", handle);
   }
-
   return handle;
 }
 
@@ -248,6 +250,8 @@ ACCLRequest *ACCL::recv(BaseBuffer &dstbuf, unsigned int count,
   options.scenario = operation::recv;
   options.comm = communicators[comm_id].communicators_addr();
   options.addr_2 = &dstbuf;
+  std::cout << "ACCL::recv: dstbuf addr: " << &dstbuf<< std::endl;
+  std::cout << "accl dst tag: " << tag << std::endl;
   options.count = count;
   options.root_src_dst = src;
   options.tag = tag;
@@ -256,13 +260,13 @@ ACCLRequest *ACCL::recv(BaseBuffer &dstbuf, unsigned int count,
   ACCLRequest *handle = call_async(options);
 
   if (!run_async) {
+    std::cout << "we dont run async in recv" << std::endl;
     wait(handle);
     if (to_fpga == false) {
       dstbuf.sync_from_device();
     }
     check_return_value("recv", handle);
   }
-
   return handle;
 }
 
@@ -316,7 +320,7 @@ ACCLRequest *ACCL::copy(BaseBuffer *srcbuf, BaseBuffer *dstbuf, unsigned int cou
   options.stream_flags = stream_flags;
   options.waitfor = waitfor;
   ACCLRequest *handle = call_async(options);
-
+  std::cout << "call async returned in accl copy" << std::endl;
   if (!run_async) {
     wait(handle);
     if (to_fpga == false) {
@@ -982,12 +986,16 @@ std::string ACCL::dump_exchange_memory() {
 
 std::string ACCL::dump_eager_rx_buffers(size_t n_egr_rx_bufs, bool dump_data) {
   std::stringstream stream;
+  std::cout << "CCLO address: " << std::hex << cclo->get_base_addr() << std::dec
+            << std::endl;
   stream << "CCLO address: " << std::hex << cclo->get_base_addr() << std::endl;
   n_egr_rx_bufs = std::min(n_egr_rx_bufs, eager_rx_buffers.size());
 
   addr_t address = CCLO_ADDR::EGR_RX_BUF_SIZE_OFFSET;
   val_t maxsize = cclo->read(address);
+  std::cout << "Max Eager RX Buffer Size: " << maxsize << std::endl;
   stream << "rx address: " << address << std::dec << std::endl;
+  std::cout << "rx address: " << std::hex << address << std::dec << std::endl;
   for (size_t i = 0; i < n_egr_rx_bufs; ++i) {
     address += 4;
     std::string status;
@@ -1018,28 +1026,48 @@ std::string ACCL::dump_eager_rx_buffers(size_t n_egr_rx_bufs, bool dump_data) {
     val_t rxsrc = cclo->read(address);
     address += 4;
     val_t seq = cclo->read(address);
+    address += 4;
+    val_t hostBit = cclo->read(address);
 
     stream << "Spare RX Buffer " << i << ":\t address: 0x" << std::hex
            << addrh * (1UL << 32) + addrl << std::dec
            << " \t status: " << status << " \t occupancy: " << rxlen << "/"
            << maxsize << " \t MPI tag: " << std::hex << rxtag << std::dec
-           << " \t seq: " << seq << " \t src: " << rxsrc;
+           << " \t seq: " << seq << " \t src: " << rxsrc
+           << " \t hostBit: " << hostBit;
+    std::cout << "Spare RX Buffer " << i << ":\t address: 0x" << std::hex
+              << addrh * (1UL << 32) + addrl << std::dec
+              << " \t status: " << status << " \t occupancy: " << rxlen << "/"
+              << maxsize << " \t MPI tag: " << std::hex << rxtag << std::dec
+              << " \t seq: " << seq << " \t src: " << rxsrc
+              << " \t hostBit: " << hostBit << std::endl;
 
     if(dump_data) {
-      eager_rx_buffers[i]->sync_from_device();
+      //add if else, to check if is host or not and sync accordingly
+      if(!(hostBit && cclo->get_device_type() == CCLO::coyote_device)){
+        eager_rx_buffers[i]->sync_from_device();
+      }
+      
 
       stream << " \t data: " << std::hex << "[";
+      std::cout << " \t data: " << std::hex << "[";
       for (size_t j = 0; j < eager_rx_buffers[i]->size(); ++j) {
         stream << "0x"
               << static_cast<uint16_t>(static_cast<uint8_t *>(
                       eager_rx_buffers[i]->byte_array())[j]);
+        std::cout << "0x"
+                  << static_cast<uint16_t>(static_cast<uint8_t *>(
+                          eager_rx_buffers[i]->byte_array())[j]);
         if (j != eager_rx_buffers[i]->size() - 1) {
           stream << ", ";
+          std::cout << ", ";
         }
       }
       stream << "]" << std::dec << std::endl;
+      std::cout << "]" << std::dec << std::endl;
     } else {
       stream << std::endl;
+      std::cout << std::endl;
     }
 
   }
@@ -1065,7 +1093,7 @@ void ACCL::parse_hwid(){
 
 void ACCL::initialize(const std::vector<rank_t> &ranks, int local_rank,
                            int n_egr_rx_bufs, addr_t egr_rx_buf_size,
-                           addr_t max_egr_size, addr_t max_rndzv_size) {
+                           addr_t max_egr_size, addr_t max_rndzv_size, bool rxEager_host) {
 
   parse_hwid();
 
@@ -1077,7 +1105,7 @@ void ACCL::initialize(const std::vector<rank_t> &ranks, int local_rank,
   }
 
   debug("Configuring Eager RX Buffers");
-  setup_eager_rx_buffers(n_egr_rx_bufs, egr_rx_buf_size, rxbufmem);
+  setup_eager_rx_buffers(n_egr_rx_bufs, egr_rx_buf_size, rxbufmem, rxEager_host);
 
   debug("Configuring Rendezvous Spare Buffers");
   setup_rendezvous_spare_buffers(max_rndzv_size, rxbufmem);
@@ -1129,23 +1157,42 @@ addr_t ACCL::get_arithmetic_config_addr(std::pair<dataType, dataType> id) {
 }
 
 void ACCL::setup_eager_rx_buffers(size_t n_egr_rx_bufs, addr_t egr_rx_buf_size,
-                            const std::vector<int> &devicemem) {
+                            const std::vector<int> &devicemem, bool host) {
   addr_t address = CCLO_ADDR::EGR_RX_BUF_SIZE_OFFSET;
+  std::cout << "eager rx buffers are host: " << std::boolalpha << host << std::endl;
   eager_rx_buffer_size = egr_rx_buf_size;
   for (size_t i = 0; i < n_egr_rx_bufs; ++i) {
     // create, clear and sync buffers to device
     Buffer<int8_t> *buf;
 
     if (sim_mode) {
-      buf = new SimBuffer(new int8_t[eager_rx_buffer_size](), eager_rx_buffer_size, dataType::int8,
+      //std::cout << "using sim buffer" << std::endl;
+      if(host){
+        buf = new SimBuffer(new int8_t[eager_rx_buffer_size](), eager_rx_buffer_size, dataType::int8,
+                          static_cast<SimDevice *>(cclo)->get_context(), true, ACCL_SIM_DEFAULT_BANK);
+      }else{
+        buf = new SimBuffer(new int8_t[eager_rx_buffer_size](), eager_rx_buffer_size, dataType::int8,
                           static_cast<SimDevice *>(cclo)->get_context());
+      }
     } else if(cclo->get_device_type() == CCLO::xrt_device ){
-      buf = new XRTBuffer<int8_t>(eager_rx_buffer_size, dataType::int8, *(static_cast<XRTDevice *>(cclo)->get_device()), devicemem[i % devicemem.size()]);
+      if(host){
+        //TODO: how to define host buffers in XRT?
+        buf = new XRTBuffer<int8_t>(eager_rx_buffer_size, dataType::int8, *(static_cast<XRTDevice *>(cclo)->get_device()), devicemem[i % devicemem.size()]);
+      }else{
+        buf = new XRTBuffer<int8_t>(eager_rx_buffer_size, dataType::int8, *(static_cast<XRTDevice *>(cclo)->get_device()), devicemem[i % devicemem.size()]);
+      }
     } else if(cclo->get_device_type() == CCLO::coyote_device){
-      buf = new CoyoteBuffer<int8_t>(eager_rx_buffer_size, dataType::int8, static_cast<CoyoteDevice *>(cclo));
+      if(host){
+        //TODO: how to define host buffers in Coyote? (host flag is always set to true)
+        buf = new CoyoteBuffer<int8_t>(eager_rx_buffer_size, dataType::int8, static_cast<CoyoteDevice *>(cclo));
+      }else{
+        buf = new CoyoteBuffer<int8_t>(eager_rx_buffer_size, dataType::int8, static_cast<CoyoteDevice *>(cclo));
+      } 
     }
-
-    buf->sync_to_device();
+    //add if else as well, test for coyote backend + eager on host
+    if(!(host && cclo->get_device_type() == CCLO::coyote_device)){
+      buf->sync_to_device();
+    }
     eager_rx_buffers.emplace_back(buf);
     // program this buffer into the accelerator
     address += 4;
@@ -1158,6 +1205,14 @@ void ACCL::setup_eager_rx_buffers(size_t n_egr_rx_bufs, addr_t egr_rx_buf_size,
     for (size_t j = 0; j < 4; ++j) {
       address += 4;
       cclo->write(address, 0);
+    }
+    //set the host flag
+    // NOTE: the host flag is set to true if the buffer is a host buffer
+    address += 4;
+    if(host){
+      cclo->write(address, 1); // set host flag
+    }else{
+      cclo->write(address, 0); // set host flag
     }
   }
 
@@ -1246,7 +1301,10 @@ void ACCL::prepare_call(CCLO::Options &options) {
   }
   else {
     dtypes.insert(options.addr_0->type());
-    if(options.addr_0->is_host_only()) options.host_flags |= hostFlags::OP0_HOST;
+    if(options.addr_0->is_host_only()){
+      options.host_flags |= hostFlags::OP0_HOST;
+      std::cout << "OP0 is host only" << std::endl;
+    } 
   }
 
   if (options.addr_1 == nullptr) {
@@ -1255,7 +1313,10 @@ void ACCL::prepare_call(CCLO::Options &options) {
   }
   else {
     dtypes.insert(options.addr_1->type());
-    if(options.addr_1->is_host_only()) options.host_flags |= hostFlags::OP1_HOST;
+    if(options.addr_1->is_host_only()) {
+      options.host_flags |= hostFlags::OP1_HOST;
+      std::cout << "OP1 is host only" << std::endl;
+    }
   }
 
   if (options.addr_2 == nullptr) {
@@ -1264,7 +1325,10 @@ void ACCL::prepare_call(CCLO::Options &options) {
   }
   else {
     dtypes.insert(options.addr_2->type());
-    if(options.addr_2->is_host_only()) options.host_flags |= hostFlags::RES_HOST;
+    if(options.addr_2->is_host_only()) {
+      options.host_flags |= hostFlags::RES_HOST;
+      std::cout << "RES is host only" << std::endl;
+    }
   }
 
   dtypes.erase(dataType::none);
@@ -1351,7 +1415,7 @@ void ACCL::prepare_call(CCLO::Options &options) {
       }
     }
   }
-
+  std::cout << "at the end of prepare_call" << std::endl;
   options.arithcfg_addr = arithcfg->addr();
 }
 
@@ -1382,6 +1446,7 @@ ACCLRequest *ACCL::call_async(CCLO::Options &options) {
   }
 
   prepare_call(options);
+  std::cout << "Calling CCLO in call_async "<< std::endl;
   ACCLRequest *req = cclo->start(options);
   return req;
 }

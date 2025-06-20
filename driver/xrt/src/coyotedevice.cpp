@@ -37,6 +37,7 @@ namespace ACCL {
 
 void CoyoteRequest::start() {
   assert(this->get_status() ==  operationStatus::EXECUTING);
+  std::cout << "CoyoteRequest::start()" << std::endl;
 
   int function, arg_id = 0;
 
@@ -45,8 +46,10 @@ void CoyoteRequest::start() {
   } else {
     function = static_cast<int>(options.reduce_function);
   }
+  std::cout << "stream_flags " << std::bitset<32>(static_cast<uint32_t>(options.stream_flags)) << std::endl;
+  std::cout << "host flags " << std::bitset<32>(static_cast<uint32_t>(options.host_flags)) << " shifted: " << std::bitset<32>(static_cast<uint32_t>(options.host_flags)<<8) << std::endl;
   uint32_t flags = static_cast<uint32_t>(options.host_flags) << 8 | static_cast<uint32_t>(options.stream_flags);
-
+  std::cout << "flags before setting csr " <<std::bitset<32>(flags) << std::setbase(10) << std::endl;
   auto coyote_proc = reinterpret_cast<ACCL::CoyoteDevice *>(cclo())->get_device();
 
   if ((coyote_proc->getCSR((OFFSET_HOSTCTRL + HOSTCTRL_ADDR::AP_CTRL)>>2) & 0x4) == 0) { // read AP_CTRL and check bit 3 (the idle bit)
@@ -56,6 +59,7 @@ void CoyoteRequest::start() {
 
   switch(options.scenario) {
     case ACCL::operation::copy: {
+      std::cout << "(hostctr offset + hostctrl addr streams) >> 2 " << std::bitset<32>(((OFFSET_HOSTCTRL + HOSTCTRL_ADDR::STREAM_FLAGS)>>2)) << std::endl;
       coyote_proc->setCSR(static_cast<uint32_t>(options.scenario), (OFFSET_HOSTCTRL + HOSTCTRL_ADDR::SCEN)>>2);
       coyote_proc->setCSR(static_cast<uint32_t>(options.count), (OFFSET_HOSTCTRL + HOSTCTRL_ADDR::LEN)>>2);
       coyote_proc->setCSR(static_cast<uint32_t>(options.arithcfg_addr), (OFFSET_HOSTCTRL + HOSTCTRL_ADDR::DATAPATH_CFG)>>2);
@@ -67,6 +71,8 @@ void CoyoteRequest::start() {
       addr_t addr_c = options.addr_2->address();
       coyote_proc->setCSR(static_cast<uint32_t>(addr_c), (OFFSET_HOSTCTRL + HOSTCTRL_ADDR::ADDRC_0)>>2);
       coyote_proc->setCSR(static_cast<uint32_t>(addr_c >> 32), (OFFSET_HOSTCTRL + HOSTCTRL_ADDR::ADDRC_1)>>2);
+      uint64_t flag = coyote_proc->getCSR((OFFSET_HOSTCTRL + HOSTCTRL_ADDR::STREAM_FLAGS)>>2);
+      std::cout << " flags " << std::bitset<32>(flag) << std::setbase(10) <<std::endl;
     break;
     }
     case ACCL::operation::combine: {
@@ -258,6 +264,7 @@ void CoyoteRequest::start() {
     case ACCL::operation::nop:
     break;
   }
+  std::cout << "set csrs, before launching coyote request" << std::endl;
   
   auto f = std::async(std::launch::async, finish_coyote_request, this);
 
@@ -337,6 +344,7 @@ ACCLRequest *CoyoteDevice::start(const Options &options) {
   fpga_handle->set_status(operationStatus::QUEUED);
 
   request_map.emplace(std::make_pair(*request, fpga_handle));
+  std::cout << "here" << std::endl;
 
   launch_request();
 
