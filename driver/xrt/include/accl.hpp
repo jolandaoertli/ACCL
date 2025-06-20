@@ -101,7 +101,7 @@ public:
   */
   void initialize(const std::vector<rank_t> &ranks, int local_rank,
                   int n_egr_rx_bufs = 16, addr_t egr_rx_buf_size = 1024, 
-                  addr_t max_egr_size = 1024, addr_t max_rndzv_size = 32*1024);
+                  addr_t max_egr_size = 1024, addr_t max_rndzv_size = 32*1024, bool rxEager_host = false);
 
   /**
    * Get the return code of the last ACCL call.
@@ -777,12 +777,15 @@ ACCLRequest *barrier(communicatorId comm_id = GLOBAL_COMM,
   template <typename dtype>
   std::unique_ptr<Buffer<dtype>> create_buffer_host(size_t length, dataType type) {
     if (sim_mode) {
+      std::cout << "using sim buffer" << std::endl;
       return std::unique_ptr<Buffer<dtype>>(new SimBuffer<dtype>(
           length, type, static_cast<SimDevice *>(cclo)->get_context(), true));
     } else if (cclo->get_device_type() == CCLO::xrt_device) {
+      std::cout << "using xrt buffer" << std::endl;
       return std::unique_ptr<Buffer<dtype>>(new XRTBuffer<dtype>(
           length, type, *(static_cast<XRTDevice *>(cclo)->get_device()), xrt::bo::flags::host_only, (xrt::memory_group)0));
     } else {
+      std::cout << "using coyote buffer" << std::endl;
       return std::unique_ptr<Buffer<dtype>>(new CoyoteBuffer<dtype>(length, type, cclo));
     }
   }
@@ -1101,7 +1104,7 @@ private:
   void configure_arithmetic();
 
   void setup_eager_rx_buffers(size_t n_egr_rx_bufs, addr_t egr_rx_buf_size,
-                        const std::vector<int> &devicemem);
+                        const std::vector<int> &devicemem, bool host=false);
   void setup_eager_rx_buffers(size_t n_egr_rx_bufs, addr_t egr_rx_buf_size, int devicemem) {
     std::vector<int> mems = {devicemem};
     return setup_eager_rx_buffers(n_egr_rx_bufs, egr_rx_buf_size, mems);

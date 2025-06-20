@@ -479,6 +479,70 @@ void configure_cyt_tcp(std::vector<rank_t> &ranks, int local_rank, ACCL::CoyoteD
 
 }
 
+void test_copy(ACCL::ACCL &accl, options_t &options){
+	unsigned int count = options.count;
+	auto op_buf = accl.create_coyotebuffer<float>(count, dataType::float32);
+	auto res_buf = accl.create_coyotebuffer<float>(count, dataType::float32);
+	int errors = 0;
+	for (int i = 0; i < count; i++){
+		op_buf.get()->buffer()[i] = (float)i;
+		res_buf.get()->buffer()[i] = -999.0f;
+	} 
+	// Print buffer addresses for debugging
+    std::cout << "Source buffer address: " << op_buf.get()->buffer() << std::endl;
+    std::cout << "Result buffer address: " << res_buf.get()->buffer() << std::endl;
+	// Debug print first few values before operation
+    std::cout << "Source buffer before copy (first 4 elements): ";
+    for (int i = 0; i < count; i++) {
+        std::cout << op_buf.get()->buffer()[i] << " ";
+    }
+    std::cout << std::endl;
+    
+    std::cout << "Result buffer before copy (first 4 elements): ";
+    for (int i = 0; i < count; i++) {
+        std::cout << res_buf.get()->buffer()[i] << " ";
+    }
+    std::cout << std::endl;
+	//syn src buffer to device
+	if (options.host == 0){ 
+		std::cout << "Syncing source buffer to device..." << std::endl;
+		op_buf->sync_to_device(); 
+	}
+	ACCL::ACCLRequest* req;
+	req = accl.copy(*op_buf, *res_buf, count);
+	accl.wait(req, 1000ms);
+	//sync res buffer from device
+	if (options.host == 0){ 
+		std::cout << "Syncing result buffer from device..." << std::endl;
+        res_buf->sync_from_device(); 
+    }
+	// Debug print first few values after operation
+    std::cout << "Result buffer after copy (first 4 elements): ";
+    for (int i = 0; i < count; i++) {
+        std::cout << res_buf.get()->buffer()[i] << " ";
+    }
+    std::cout << std::endl;
+	for (int i = 0; i < count; i++) {
+		if (res_buf.get()->buffer()[i] != op_buf.get()->buffer()[i]) {
+			std::cout << std::to_string(i + 1) + "th item is incorrect!" << res_buf.get()->buffer()[i] << " != " 
+			<< op_buf.get()->buffer()[i] << std::endl;
+			errors += 1;
+		}
+	}
+	if (errors > 0) {
+        std::cout << "Copy test failed with " << errors << " errors out of " << count << " elements!" << std::endl;
+        failed_tests++;
+    } else {
+        std::cout << "Copy test successful!" << std::endl;
+    }
+    
+    // Free buffers
+    std::cout << "Freeing buffers..." << std::endl;
+    op_buf->free_buffer();
+    res_buf->free_buffer();
+}
+
+
 
 void test_sendrcv(ACCL::ACCL &accl, options_t &options) {
   	std::cout << "Start send recv test..." << std::endl<<std::flush;
@@ -1141,6 +1205,7 @@ void test_accl_base(options_t options)
 
 	MPI_Barrier(MPI_COMM_WORLD);
 	
+	test_copy(*accl, options);
 
 	if(options.test_mode == ACCL_SEND || options.test_mode == 0){
 		debug(accl->dump_eager_rx_buffers(false));

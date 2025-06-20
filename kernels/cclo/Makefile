@@ -21,7 +21,7 @@ STACK_TYPE ?= RDMA
 MODE ?= xo
 EN_DMA ?= 1
 EN_ARITH ?= 1
-EN_COMPRESS ?= 1
+EN_COMPRESS ?= 0
 EN_EXT_KRNL ?= 1
 MB_DEBUG_LEVEL ?= 0
 SIM_MEM_SIZE_LOG ?= 28
@@ -32,7 +32,7 @@ FW_SOURCES = $(shell find fw -name '*.c') $(shell find fw -name '*.h') $(shell f
 ifeq ($(MODE), simdll)
 	EN_DMA=1
 	EN_ARITH=1
-	EN_COMPRESS=1
+	EN_COMPRESS=0
 	EN_EXT_KRNL=1
 	MB_DEBUG_LEVEL=0
 endif
@@ -61,6 +61,8 @@ GEN_KERNEL_TCL := tcl/generate_kernel.tcl
 REBUILD_BD_TCL := tcl/rebuild_bd.tcl tcl/control_bd.tcl tcl/rx_bd.tcl tcl/tx_bd.tcl
 
 ifeq ($(MODE), simdll)
+	FPGAPART=xcu55c-fsvh2892-2L-e
+	BOARD=u55c
 	BUILD_FOLDER = $(STACK_TYPE)_sim
 else
 	BUILD_FOLDER = $(STACK_TYPE)_$(EN_DMA)$(EN_ARITH)$(EN_COMPRESS)$(EN_EXT_KRNL)$(MB_DEBUG_LEVEL)_$(FPGAPART)
