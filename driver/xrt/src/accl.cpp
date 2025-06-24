@@ -1019,6 +1019,8 @@ std::string ACCL::dump_eager_rx_buffers(size_t n_egr_rx_bufs, bool dump_data) {
     address += 4;
     val_t addrh = cclo->read(address);
     address += 4;
+    val_t max_len = cclo->read(address);
+    address += 4;
     val_t rxtag = cclo->read(address);
     address += 4;
     val_t rxlen = cclo->read(address);
@@ -1202,7 +1204,7 @@ void ACCL::setup_eager_rx_buffers(size_t n_egr_rx_bufs, addr_t egr_rx_buf_size,
     address += 4;
     cclo->write(address, (buf->address() >> 32) & 0xffffffff);
     // clear remaining 4 fields
-    for (size_t j = 0; j < 4; ++j) {
+    for (size_t j = 0; j < 5; ++j) {
       address += 4;
       cclo->write(address, 0);
     }

@@ -273,6 +273,7 @@ typedef struct {
     unsigned int rx_len;
     unsigned int rx_src;
     unsigned int sequence_number;
+    unsigned int host;
 } rx_buffer;
 
 #define STATUS_OFFSET           0
@@ -285,6 +286,12 @@ typedef struct {
 #define SEQUENCE_NUMBER_OFFSET  7 
 #define HOST_OFFSET             8 //host address offset for the buffer  
 #define SPARE_BUFFER_FIELDS     9       
+/*#define RX_TAG_OFFSET           3
+#define RX_LEN_OFFSET           4
+#define RX_SRC_OFFSET           5
+#define SEQUENCE_NUMBER_OFFSET  6 
+#define HOST_OFFSET             7 //host address offset for the buffer  
+#define SPARE_BUFFER_FIELDS     8*/        
 
 #define STATUS_IDLE     0x00
 #define STATUS_ENQUEUED 0x01
