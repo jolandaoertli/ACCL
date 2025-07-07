@@ -45,8 +45,17 @@ void CoyoteRequest::start() {
   } else {
     function = static_cast<int>(options.reduce_function);
   }
+  std::cout << "options.scenario " << static_cast<uint32_t>(options.scenario) << " options.count " << options.count << " options.comm " << options.comm <<
+  " options.root_src_dest " << options.root_src_dst << " options.cfg_function " << static_cast<uint32_t>(options.cfg_function) << " options.reduce_function " << static_cast<uint32_t>(options.reduce_function) <<
+  " options.tag " << options.tag << " options.arithcfg_addr " << options.arithcfg_addr << " options.compress_dtype " << static_cast<uint32_t>(options.compress_dtype) <<
+  " options.compression_flags " << std::bitset<32>(static_cast<uint32_t>(options.compression_flags)) << " options.stream_flags " << std::bitset<32>(static_cast<uint32_t>(options.stream_flags)) <<
+  " options.host_flags " << std::bitset<32>(static_cast<uint32_t>(options.host_flags)) << " address0 " << options.addr_0->address() << " address1 " << options.addr_1->address() <<
+  " address2 " << options.addr_2->address() << " options.data_type_io_0 " << static_cast<uint32_t>(options.data_type_io_0) << " options.data_type_io_1 " << static_cast<uint32_t>(options.data_type_io_1) <<
+  " options.data_type_io_2 " << static_cast<uint32_t>(options.data_type_io_2) << std::endl;
+  //std::cout << "stream_flags " << std::bitset<32>(static_cast<uint32_t>(options.stream_flags)) << std::endl;
+  //std::cout << "host flags " << std::bitset<32>(static_cast<uint32_t>(options.host_flags)) << " shifted: " << std::bitset<32>(static_cast<uint32_t>(options.host_flags)<<8) << std::endl;
   uint32_t flags = static_cast<uint32_t>(options.host_flags) << 8 | static_cast<uint32_t>(options.stream_flags);
-
+  //std::cout << "flags before setting csr " <<std::bitset<32>(flags) << std::setbase(10) << std::endl;
   auto coyote_proc = reinterpret_cast<ACCL::CoyoteDevice *>(cclo())->get_device();
 
   if ((coyote_proc->getCSR((OFFSET_HOSTCTRL + HOSTCTRL_ADDR::AP_CTRL)>>2) & 0x4) == 0) { // read AP_CTRL and check bit 3 (the idle bit)
@@ -289,7 +298,7 @@ CoyoteDevice::CoyoteDevice(unsigned int num_qp): num_qp(num_qp) {
   }
 
   for (unsigned int i=0; i<coyote_qProc_vec.size(); i++){
-    if(coyote_qProc_vec[i]->getCtid() == 0){
+    if(/*coyote_qProc_vec[i]->getCtid()*/i == 0){
       this->coyote_proc = coyote_qProc_vec[i];
       std::cerr << "ACLL DEBUG: aquiring cProc: targetRegion: " << targetRegion << ", cPid: " << coyote_proc->getCtid() << std::endl;
       coyote_qProc_vec.erase(coyote_qProc_vec.begin() + i);
@@ -297,7 +306,7 @@ CoyoteDevice::CoyoteDevice(unsigned int num_qp): num_qp(num_qp) {
     }
   }
 
-  if(coyote_proc == NULL || coyote_proc->getCtid() != 0){
+  if(coyote_proc == NULL /*|| coyote_proc->getCtid() != 0*/){
     std::cerr << "cProc initialization error!"<<std::endl;
     for(unsigned int i = 0; i < coyote_qProc_vec.size(); i++) {
       if(coyote_qProc_vec[i] != nullptr) {

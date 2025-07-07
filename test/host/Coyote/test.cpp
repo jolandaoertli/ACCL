@@ -491,6 +491,7 @@ void test_copy(ACCL::ACCL &accl, options_t &options){
 		op_buf.get()->buffer()[i] = (float)i;
 		res_buf.get()->buffer()[i] = -999.0f;
 	}
+	op_buf.get()->buffer()[0] = (float) 5;
 	// Print buffer addresses for debugging
     std::cout << "Source buffer address: " << op_buf.get()->buffer() << std::endl;
     std::cout << "Result buffer address: " << res_buf.get()->buffer() << std::endl;
@@ -542,6 +543,7 @@ void test_sendrcv(ACCL::ACCL &accl, options_t &options) {
 
 		// rank 0 initializes the buffer with numbers, rank1 with -1
 		for (int i = 0; i < bufsize; i++) op_buf.get()->buffer()[i] = (mpi_rank == 0) ? i : -1;
+		op_buf.get()->buffer()[0] = (int) 5;
 		
 		if (options.host == 0){ op_buf->sync_to_device(); }
 
@@ -582,12 +584,14 @@ void test_sendrcv(ACCL::ACCL &accl, options_t &options) {
 		int errors = 0;
 
 		if (options.host == 0){ op_buf->sync_from_device(); }
-		
 		if (mpi_rank == 1)
 		{
 			for (int i = 0; i < bufsize; i++) {
 				unsigned int res = op_buf.get()->buffer()[i];
 				unsigned int ref = i;
+				if(i == 0){
+					ref = 5;
+				}
 				if (res != ref) {
 				std::cout << std::to_string(i + 1) + "th item is incorrect! (" +
 								std::to_string(res) + " != " + std::to_string(ref) + ")"
@@ -1154,7 +1158,7 @@ void test_accl_base(options_t options)
 		if (options.protoc == 0){
 			std::cout<<"Eager Protocol"<<std::endl;
 			accl.get()->initialize(ranks, mpi_rank,
-				mpi_size+2, options.rxbuf_size, options.seg_size, 4096*1024*2);
+				mpi_size+2, options.rxbuf_size, /*options.seg_size*/4096*1024, 4096*1024*2, true);
 		} else if (options.protoc == 1){
 			std::cout<<"Rendezvous Protocol"<<std::endl;
 			accl.get()->initialize(ranks, mpi_rank, mpi_size, 64, 64, options.seg_size);
@@ -1195,7 +1199,7 @@ void test_accl_base(options_t options)
 		test_sendrcv(*accl, options);
 		debug(accl->dump_communicator());
 		debug(accl->dump_eager_rx_buffers(false));
-	}
+	}*/
 	if(options.test_mode == ACCL_BCAST || options.test_mode == 0){
 		debug(accl->dump_eager_rx_buffers(false));
 		MPI_Barrier(MPI_COMM_WORLD);
@@ -1253,7 +1257,7 @@ void test_accl_base(options_t options)
 			durationUs = (std::chrono::duration_cast<std::chrono::nanoseconds>(end-start).count() / 1000.0);
 			std::cout<<"barrier durationUs:"<<durationUs<<std::endl;
 		}
-	}*/
+	}
 
 	MPI_Barrier(MPI_COMM_WORLD);
 	if (failed_tests == 0){

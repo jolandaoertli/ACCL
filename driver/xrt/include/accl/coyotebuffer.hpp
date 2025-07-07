@@ -112,15 +112,19 @@ template <typename dtype> class CoyoteBuffer : public Buffer<dtype> {
      */
     void sync_from_device() override
     {
-      std::cerr << "calling sync: " << std::setbase(16) << (uint64_t)this->aligned_buffer << ", size: " << std::setbase(10) << this->size() << std::endl;
+      std::cerr << "sync_from_device at address: " << std::setbase(16) << (uint64_t)this->aligned_buffer << ", size: " << std::setbase(10) << this->size() << std::endl;
 
       coyote::sgEntry sg;
       memset(&sg, 0, sizeof(coyote::syncSg));
       sg.sync.addr = this->aligned_buffer;
+      sg.sync.size = this->size();
 
+      //int ret_code = 
       this->device->coyote_proc->invoke(coyote::CoyoteOper::LOCAL_SYNC, &sg, {true, true, true});
     
-      this->host_flag = true;
+      //if (!ret_code) {
+        this->host_flag = true;
+      //}
     }
 
     /**
@@ -129,15 +133,19 @@ template <typename dtype> class CoyoteBuffer : public Buffer<dtype> {
      */
     void sync_to_device() override
     {
-      std::cerr << "calling offload: " << std::setbase(16) << (uint64_t)this->aligned_buffer << ", size: " << std::setbase(10) << this->size() << std::endl;
+      std::cerr << "sync_to_device at address: " << std::setbase(16) << (uint64_t)this->aligned_buffer << ", size: " << std::setbase(10) << this->size() << std::endl;
 
       coyote::sgEntry sg;
       memset(&sg, 0, sizeof(coyote::syncSg));
       sg.sync.addr = this->aligned_buffer;
+      sg.sync.size = this->size();
 
+      //int ret_code = 
       this->device->coyote_proc->invoke(coyote::CoyoteOper::LOCAL_OFFLOAD, &sg, {true, true, true});
     
-      this->host_flag = false;
+      //if (!ret_code) {
+        this->host_flag = false;
+      //}
     }
 
 
