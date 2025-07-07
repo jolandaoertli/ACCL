@@ -11,7 +11,6 @@ find_package(CoyoteHW REQUIRED)
 #
 if(EXAMPLE STREQUAL "rdma")
     message("** ACCL-RDMA Test")
-    set(SHELL_PROBE 7)
     set(N_REGIONS 1)
     set(EN_STRM 1)
     set(EN_RDMA 1)
@@ -19,8 +18,9 @@ if(EXAMPLE STREQUAL "rdma")
     set(N_CARD_AXI 3)
     set(N_RDMA_AXI 2)
     set(ACLK_F 250)
-    set(TLBL_A 12)
+    set(TLBL_A 2)
     set(EN_MEM 1)
+    set(BUILD_OPT 1)
 
     validation_checks_hw()
 

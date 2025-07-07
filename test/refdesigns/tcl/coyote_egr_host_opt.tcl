@@ -833,26 +833,66 @@ group_bd_cells sq_conversion [get_bd_cells axis_switch_2_to_1_inst_2] [get_bd_ce
 group_bd_cells local_dma_input_muxing [get_bd_cells axis_switch_2_to_1_inst_0] [get_bd_cells axis_switch_2_to_1_inst_1] [get_bd_cells xlconstant_0] [get_bd_cells axis_register_slice_7] [get_bd_cells axis_register_slice_8] [get_bd_cells xlconstant_1]
 group_bd_cells local_dma_output_demuxing [get_bd_cells axis_switch_1_to_2_inst_0] [get_bd_cells axis_register_slice_12] [get_bd_cells axis_register_slice_13] [get_bd_cells axis_switch_1_to_2_inst_1]
 
-#create ila_top
-create_ip -name ila -vendor xilinx.com -library ip -version 6.2 -module_name ila_top
-set_property -dict [ list CONFIG.C_PROBE2_WIDTH {128} ] [get_ips ila_top]
-set_property -dict [ list CONFIG.C_PROBE5_WIDTH {128} ] [get_ips ila_top]
-set_property -dict [ list CONFIG.C_PROBE8_WIDTH {128} ] [get_ips ila_top]
-set_property -dict [ list CONFIG.C_PROBE11_WIDTH {128} ] [get_ips ila_top]
-set_property -dict [ list CONFIG.C_PROBE12_WIDTH {32} ] [get_ips ila_top]
-set_property -dict [ list CONFIG.C_PROBE15_WIDTH {32} ] [get_ips ila_top]
-set_property -dict [ list CONFIG.C_PROBE20_WIDTH {512} ] [get_ips ila_top]
-set_property -dict [ list CONFIG.C_PROBE23_WIDTH {512} ] [get_ips ila_top]
-set_property -dict [ list CONFIG.C_PROBE26_WIDTH {512} ] [get_ips ila_top]
-set_property -dict [ list CONFIG.C_PROBE29_WIDTH {512} ] [get_ips ila_top]
-set_property -dict [ list CONFIG.C_PROBE32_WIDTH {512} ] [get_ips ila_top]
-set_property -dict [ list CONFIG.C_PROBE35_WIDTH {512} ] [get_ips ila_top]
-set_property -dict [ list CONFIG.C_PROBE38_WIDTH {512} ] [get_ips ila_top]
-set_property -dict [ list CONFIG.C_PROBE41_WIDTH {512} ] [get_ips ila_top]
-set_property -dict [ list CONFIG.C_NUM_OF_PROBES {42} ] [get_ips ila_top]
-set_property -dict [ list CONFIG.C_EN_STRG_QUAL {1} ] [get_ips ila_top]
-set_property -dict [ list CONFIG.C_INPUT_PIPE_STAGES {2} ] [get_ips ila_top]
-set_property -dict [ list CONFIG.C_DATA_DEPTH {2048} ] [get_ips ila_top]
+#create_ip -name ila_top_0 -vendor xilinx.com -library ip -version 6.2 -module_name ila_top
+#set_property -dict [ list \
+#    CONFIG.C_PROBE0_WIDTH {1} \
+#    CONFIG.C_PROBE1_WIDTH {1} \
+#    CONFIG.C_PROBE2_WIDTH {128} \
+#    CONFIG.C_PROBE3_WIDTH {1} \
+#    CONFIG.C_PROBE4_WIDTH {1} \
+#    CONFIG.C_PROBE5_WIDTH {128} \
+#    CONFIG.C_PROBE6_WIDTH {1} \
+#    CONFIG.C_PROBE7_WIDTH {1} \
+#    CONFIG.C_PROBE8_WIDTH {128} \
+#    CONFIG.C_PROBE9_WIDTH {1} \
+#    CONFIG.C_PROBE10_WIDTH {1} \
+#    CONFIG.C_PROBE11_WIDTH {128} \
+#    CONFIG.C_PROBE12_WIDTH {1} \
+#    CONFIG.C_PROBE13_WIDTH {1} \
+#    CONFIG.C_PROBE14_WIDTH {1} \
+#    CONFIG.C_PROBE15_WIDTH {1} \
+#    CONFIG.C_PROBE16_WIDTH {1} \
+#    CONFIG.C_PROBE17_WIDTH {1} \
+#    CONFIG.C_PROBE18_WIDTH {1} \
+#    CONFIG.C_PROBE19_WIDTH {1} \
+#    CONFIG.C_PROBE20_WIDTH {1} \
+#    CONFIG.C_PROBE21_WIDTH {1} \
+#    CONFIG.C_PROBE22_WIDTH {1} \
+#    CONFIG.C_PROBE23_WIDTH {1} \
+#    CONFIG.C_PROBE24_WIDTH {32} \
+#    CONFIG.C_PROBE25_WIDTH {1} \
+#    CONFIG.C_PROBE26_WIDTH {1} \
+#    CONFIG.C_PROBE27_WIDTH {32} \
+#    CONFIG.C_PROBE28_WIDTH {1} \
+#    CONFIG.C_PROBE29_WIDTH {1} \
+#    CONFIG.C_PROBE30_WIDTH {1} \
+#    CONFIG.C_PROBE31_WIDTH {1} \
+#    CONFIG.C_PROBE32_WIDTH {1} \
+#    CONFIG.C_PROBE33_WIDTH {1} \
+ #   CONFIG.C_PROBE34_WIDTH {1} \
+ #   CONFIG.C_PROBE35_WIDTH {1} \
+#    CONFIG.C_PROBE36_WIDTH {1} \
+#    CONFIG.C_PROBE37_WIDTH {1} \
+#    CONFIG.C_PROBE38_WIDTH {1} \
+#    CONFIG.C_PROBE39_WIDTH {1} \
+#    CONFIG.C_PROBE40_WIDTH {1} \
+#    CONFIG.C_PROBE41_WIDTH {1} \
+#    CONFIG.C_PROBE42_WIDTH {1} \
+#    CONFIG.C_PROBE43_WIDTH {1} \
+#    CONFIG.C_PROBE44_WIDTH {1} \
+#    CONFIG.C_PROBE45_WIDTH {1} \
+#    CONFIG.C_PROBE46_WIDTH {1} \
+#    CONFIG.C_PROBE47_WIDTH {1} \
+#    CONFIG.C_PROBE48_WIDTH {1} \
+#    CONFIG.C_PROBE49_WIDTH {1} \
+#    CONFIG.C_PROBE50_WIDTH {1} \
+#    CONFIG.C_PROBE51_WIDTH {1} \
+#    CONFIG.C_PROBE52_WIDTH {1} \
+#    CONFIG.C_PROBE53_WIDTH {1} \
+#    CONFIG.C_NUM_OF_PROBES {54} \
+#    CONFIG.C_EN_STRG_QUAL {1} \
+#    CONFIG.C_INPUT_PIPE_STAGES {2} \
+#][get_ips ila_top]
 
 #set_clock_uncertainty 0.2
 

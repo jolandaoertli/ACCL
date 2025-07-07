@@ -181,6 +181,16 @@ update_ip_catalog
    CONFIG.TUSER_WIDTH {0} \
    ] $cyt_rrsp_recv_1
 
+  set cyt_rrsp_send_0 [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:axis_rtl:1.0 cyt_rrsp_send_0 ]
+  set_property -dict [ list \
+   CONFIG.FREQ_HZ {250000000} \
+   ] $cyt_rrsp_send_0
+
+  set cyt_rrsp_send_1 [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:axis_rtl:1.0 cyt_rrsp_send_1 ]
+  set_property -dict [ list \
+   CONFIG.FREQ_HZ {250000000} \
+   ] $cyt_rrsp_send_1
+
   set cyt_sq_rd_cmd [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:axis_rtl:1.0 cyt_sq_rd_cmd ]
   set_property -dict [ list \
    CONFIG.FREQ_HZ {250000000} \
@@ -249,6 +259,20 @@ update_ip_catalog
    CONFIG.TUSER_WIDTH {0} \
    ] $s_axis_card_1
 
+  set s_axis_card_2 [ create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:axis_rtl:1.0 s_axis_card_2 ]
+  set_property -dict [ list \
+   CONFIG.FREQ_HZ {250000000} \
+   CONFIG.HAS_TKEEP {1} \
+   CONFIG.HAS_TLAST {1} \
+   CONFIG.HAS_TREADY {1} \
+   CONFIG.HAS_TSTRB {0} \
+   CONFIG.LAYERED_METADATA {undef} \
+   CONFIG.TDATA_NUM_BYTES {64} \
+   CONFIG.TDEST_WIDTH {0} \
+   CONFIG.TID_WIDTH {0} \
+   CONFIG.TUSER_WIDTH {0} \
+   ] $s_axis_card_2
+
   set s_axis_host_0 [ create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:axis_rtl:1.0 s_axis_host_0 ]
   set_property -dict [ list \
    CONFIG.FREQ_HZ {250000000} \
@@ -277,11 +301,25 @@ update_ip_catalog
    CONFIG.TUSER_WIDTH {0} \
    ] $s_axis_host_1
 
+  set s_axis_host_2 [ create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:axis_rtl:1.0 s_axis_host_2 ]
+  set_property -dict [ list \
+   CONFIG.FREQ_HZ {250000000} \
+   CONFIG.HAS_TKEEP {1} \
+   CONFIG.HAS_TLAST {1} \
+   CONFIG.HAS_TREADY {1} \
+   CONFIG.HAS_TSTRB {0} \
+   CONFIG.LAYERED_METADATA {undef} \
+   CONFIG.TDATA_NUM_BYTES {64} \
+   CONFIG.TDEST_WIDTH {0} \
+   CONFIG.TID_WIDTH {0} \
+   CONFIG.TUSER_WIDTH {0} \
+   ] $s_axis_host_2
+
 
   # Create ports
   set ap_clk_0 [ create_bd_port -dir I -type clk -freq_hz 250000000 ap_clk_0 ]
   set_property -dict [ list \
-   CONFIG.ASSOCIATED_BUSIF {cyt_cq_wr_sts_0:cyt_cq_rd_sts_0:cyt_sq_wr_cmd:cyt_sq_rd_cmd:m_axis_host_2:m_axis_card_2:cyt_rq_wr:m_axis_host_0:m_axis_host_1:m_axis_card_0:m_axis_card_1:s_axis_host_0:s_axis_host_1:s_axis_card_0:s_axis_card_1:S00_AXI_0:cyt_rreq_send_0:cyt_rreq_send_1:cyt_rrsp_recv_0:cyt_rrsp_recv_1:cyt_rq_rd:cyt_rreq_recv_0:cyt_rreq_recv_1} \
+   CONFIG.ASSOCIATED_BUSIF {cyt_cq_wr_sts_0:cyt_cq_rd_sts_0:cyt_sq_wr_cmd:cyt_sq_rd_cmd:m_axis_host_2:m_axis_card_2:s_axis_host_2:s_axis_card_2:cyt_rq_wr:m_axis_host_0:m_axis_host_1:m_axis_card_0:m_axis_card_1:s_axis_host_0:s_axis_host_1:s_axis_card_0:s_axis_card_1:S00_AXI_0:cyt_rreq_send_0:cyt_rreq_send_1:cyt_rrsp_recv_0:cyt_rrsp_recv_1:cyt_rrsp_send_0:cyt_rrsp_send_1:cyt_rq_rd:cyt_rreq_recv_0:cyt_rreq_recv_1} \
  ] $ap_clk_0
   set ap_rst_n_0 [ create_bd_port -dir I -type rst ap_rst_n_0 ]
 
@@ -333,6 +371,17 @@ update_ip_catalog
    CONFIG.FIFO_DEPTH {16} \
  ] $axis_data_fifo_7
 
+  # Create instance: axis_data_fifo_8, and set properties
+  set axis_data_fifo_8 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axis_data_fifo:2.0 axis_data_fifo_8 ]
+  set_property -dict [ list \
+   CONFIG.FIFO_DEPTH {16} \
+ ] $axis_data_fifo_8
+
+  # Create instance: axis_data_fifo_9, and set properties
+  set axis_data_fifo_9 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axis_data_fifo:2.0 axis_data_fifo_9 ]
+  set_property -dict [ list \
+   CONFIG.FIFO_DEPTH {16} \
+ ] $axis_data_fifo_9
 
   # Create instance: axis_register_slice_0, and set properties
   set axis_register_slice_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axis_register_slice:1.1 axis_register_slice_0 ]
@@ -700,22 +749,24 @@ update_ip_catalog
 
   # Create interface connections
   connect_bd_intf_net -intf_net S00_AXI_0_1 [get_bd_intf_ports S00_AXI_0] [get_bd_intf_pins smartconnect_0/S00_AXI]
-  connect_bd_intf_net -intf_net axis_data_fifo_0_M_AXIS [get_bd_intf_pins axis_data_fifo_0/M_AXIS] [get_bd_intf_pins cyt_dma_sq_adapter_0/cyt_rq_wr_cmd]
-  connect_bd_intf_net -intf_net axis_data_fifo_1_M_AXIS [get_bd_intf_pins axis_data_fifo_1/M_AXIS] [get_bd_intf_pins cyt_dma_sq_adapter_0/cyt_rq_rd_cmd]
-  connect_bd_intf_net -intf_net axis_data_fifo_2_M_AXIS [get_bd_intf_pins axis_data_fifo_2/M_AXIS] [get_bd_intf_pins cyt_dma_sq_adapter_0/cclo_sq_wr_cmd]
-  connect_bd_intf_net -intf_net axis_data_fifo_3_M_AXIS [get_bd_intf_pins axis_data_fifo_3/M_AXIS] [get_bd_intf_pins cyt_dma_sq_adapter_0/cclo_sq_rd_cmd]
-  connect_bd_intf_net -intf_net axis_data_fifo_4_M_AXIS [get_bd_intf_pins axis_data_fifo_4/M_AXIS] [get_bd_intf_pins cyt_cq_dm_sts_conver_1/dm1_meta]
-connect_bd_intf_net -intf_net [get_bd_intf_nets axis_data_fifo_4_M_AXIS] [get_bd_intf_pins axis_data_fifo_4/M_AXIS] [get_bd_intf_pins system_ila_0/SLOT_0_AXIS]
-  set_property HDL_ATTRIBUTE.DEBUG {true} [get_bd_intf_nets axis_data_fifo_4_M_AXIS]
-  connect_bd_intf_net -intf_net axis_data_fifo_5_M_AXIS [get_bd_intf_pins axis_data_fifo_5/M_AXIS] [get_bd_intf_pins cyt_cq_dm_sts_conver_1/dm0_meta]
-connect_bd_intf_net -intf_net [get_bd_intf_nets axis_data_fifo_5_M_AXIS] [get_bd_intf_pins axis_data_fifo_5/M_AXIS] [get_bd_intf_pins system_ila_0/SLOT_1_AXIS]
-  set_property HDL_ATTRIBUTE.DEBUG {true} [get_bd_intf_nets axis_data_fifo_5_M_AXIS]
-  connect_bd_intf_net -intf_net axis_data_fifo_6_M_AXIS [get_bd_intf_pins axis_data_fifo_6/M_AXIS] [get_bd_intf_pins cyt_cq_dm_sts_conver_0/dm1_meta]
-connect_bd_intf_net -intf_net [get_bd_intf_nets axis_data_fifo_6_M_AXIS] [get_bd_intf_pins axis_data_fifo_6/M_AXIS] [get_bd_intf_pins system_ila_0/SLOT_6_AXIS]
+  connect_bd_intf_net -intf_net axis_data_fifo_0_M_AXIS [get_bd_intf_ports cyt_rrsp_send_0] [get_bd_intf_pins axis_data_fifo_0/M_AXIS]
+  connect_bd_intf_net -intf_net axis_data_fifo_1_M_AXIS [get_bd_intf_ports cyt_rrsp_send_1] [get_bd_intf_pins axis_data_fifo_1/M_AXIS]
+  connect_bd_intf_net -intf_net axis_data_fifo_2_M_AXIS [get_bd_intf_pins axis_data_fifo_2/M_AXIS] [get_bd_intf_pins cyt_dma_sq_adapter_0/cyt_rq_wr_cmd]
+  connect_bd_intf_net -intf_net axis_data_fifo_3_M_AXIS [get_bd_intf_pins axis_data_fifo_3/M_AXIS] [get_bd_intf_pins cyt_dma_sq_adapter_0/cyt_rq_rd_cmd]
+  connect_bd_intf_net -intf_net axis_data_fifo_4_M_AXIS [get_bd_intf_pins axis_data_fifo_4/M_AXIS] [get_bd_intf_pins cyt_dma_sq_adapter_0/cclo_sq_wr_cmd]
+  connect_bd_intf_net -intf_net axis_data_fifo_5_M_AXIS [get_bd_intf_pins axis_data_fifo_5/M_AXIS] [get_bd_intf_pins cyt_dma_sq_adapter_0/cclo_sq_rd_cmd]
+  connect_bd_intf_net -intf_net axis_data_fifo_6_M_AXIS [get_bd_intf_pins axis_data_fifo_6/M_AXIS] [get_bd_intf_pins cyt_cq_dm_sts_conver_1/dm1_meta]
+connect_bd_intf_net -intf_net [get_bd_intf_nets axis_data_fifo_6_M_AXIS] [get_bd_intf_pins axis_data_fifo_6/M_AXIS] [get_bd_intf_pins system_ila_0/SLOT_0_AXIS]
   set_property HDL_ATTRIBUTE.DEBUG {true} [get_bd_intf_nets axis_data_fifo_6_M_AXIS]
-  connect_bd_intf_net -intf_net axis_data_fifo_7_M_AXIS [get_bd_intf_pins axis_data_fifo_7/M_AXIS] [get_bd_intf_pins cyt_cq_dm_sts_conver_0/dm0_meta]
-connect_bd_intf_net -intf_net [get_bd_intf_nets axis_data_fifo_7_M_AXIS] [get_bd_intf_pins axis_data_fifo_7/M_AXIS] [get_bd_intf_pins system_ila_0/SLOT_7_AXIS]
+  connect_bd_intf_net -intf_net axis_data_fifo_7_M_AXIS [get_bd_intf_pins axis_data_fifo_7/M_AXIS] [get_bd_intf_pins cyt_cq_dm_sts_conver_1/dm0_meta]
+connect_bd_intf_net -intf_net [get_bd_intf_nets axis_data_fifo_7_M_AXIS] [get_bd_intf_pins axis_data_fifo_7/M_AXIS] [get_bd_intf_pins system_ila_0/SLOT_1_AXIS]
   set_property HDL_ATTRIBUTE.DEBUG {true} [get_bd_intf_nets axis_data_fifo_7_M_AXIS]
+  connect_bd_intf_net -intf_net axis_data_fifo_8_M_AXIS [get_bd_intf_pins axis_data_fifo_8/M_AXIS] [get_bd_intf_pins cyt_cq_dm_sts_conver_0/dm1_meta]
+connect_bd_intf_net -intf_net [get_bd_intf_nets axis_data_fifo_8_M_AXIS] [get_bd_intf_pins axis_data_fifo_8/M_AXIS] [get_bd_intf_pins system_ila_0/SLOT_6_AXIS]
+  set_property HDL_ATTRIBUTE.DEBUG {true} [get_bd_intf_nets axis_data_fifo_8_M_AXIS]
+  connect_bd_intf_net -intf_net axis_data_fifo_9_M_AXIS [get_bd_intf_pins axis_data_fifo_9/M_AXIS] [get_bd_intf_pins cyt_cq_dm_sts_conver_0/dm0_meta]
+connect_bd_intf_net -intf_net [get_bd_intf_nets axis_data_fifo_9_M_AXIS] [get_bd_intf_pins axis_data_fifo_9/M_AXIS] [get_bd_intf_pins system_ila_0/SLOT_7_AXIS]
+  set_property HDL_ATTRIBUTE.DEBUG {true} [get_bd_intf_nets axis_data_fifo_9_M_AXIS]
   connect_bd_intf_net -intf_net axis_register_slice_0_M_AXIS [get_bd_intf_pins axis_register_slice_0/M_AXIS] [get_bd_intf_pins cyt_rdma_arbiter_0/s_axis_0]
   connect_bd_intf_net -intf_net axis_register_slice_10_M_AXIS [get_bd_intf_ports cyt_sq_rd_cmd] [get_bd_intf_pins axis_register_slice_10/M_AXIS]
   connect_bd_intf_net -intf_net axis_register_slice_11_M_AXIS [get_bd_intf_pins axis_register_slice_11/M_AXIS] [get_bd_intf_pins axis_switch_1_to_2_inst_3/S00_AXIS]
@@ -730,7 +781,7 @@ connect_bd_intf_net -intf_net [get_bd_intf_nets axis_register_slice_3_M_AXIS] [g
   connect_bd_intf_net -intf_net axis_register_slice_4_M_AXIS [get_bd_intf_pins axis_register_slice_4/M_AXIS] [get_bd_intf_pins cyt_cq_dm_sts_conver_1/cq_sts]
 connect_bd_intf_net -intf_net [get_bd_intf_nets axis_register_slice_4_M_AXIS] [get_bd_intf_pins axis_register_slice_4/M_AXIS] [get_bd_intf_pins system_ila_0/SLOT_9_AXIS]
   set_property HDL_ATTRIBUTE.DEBUG {true} [get_bd_intf_nets axis_register_slice_4_M_AXIS]
-  connect_bd_intf_net -intf_net axis_register_slice_5_M_AXIS [get_bd_intf_pins axis_data_fifo_1/S_AXIS] [get_bd_intf_pins axis_register_slice_5/M_AXIS]
+  connect_bd_intf_net -intf_net axis_register_slice_5_M_AXIS [get_bd_intf_pins axis_data_fifo_3/S_AXIS] [get_bd_intf_pins axis_register_slice_5/M_AXIS]
   connect_bd_intf_net -intf_net axis_register_slice_6_M_AXIS [get_bd_intf_pins axis_register_slice_6/M_AXIS] [get_bd_intf_pins cclo_sq_adapter_0/s_axis_cyt]
   connect_bd_intf_net -intf_net axis_register_slice_7_M_AXIS [get_bd_intf_pins axis_register_slice_7/M_AXIS] [get_bd_intf_pins ccl_offload_0/s_axis_dma0_mm2s]
   connect_bd_intf_net -intf_net axis_register_slice_8_M_AXIS [get_bd_intf_pins axis_register_slice_8/M_AXIS] [get_bd_intf_pins ccl_offload_0/s_axis_dma1_mm2s]
@@ -749,6 +800,9 @@ connect_bd_intf_net -intf_net [get_bd_intf_nets axis_register_slice_4_M_AXIS] [g
   connect_bd_intf_net -intf_net ccl_offload_0_m_axis_arith_op0 [get_bd_intf_pins ccl_offload_0/m_axis_arith_op0] [get_bd_intf_pins reduce_ops_0/in0]
   connect_bd_intf_net -intf_net ccl_offload_0_m_axis_arith_op1 [get_bd_intf_pins ccl_offload_0/m_axis_arith_op1] [get_bd_intf_pins reduce_ops_0/in1]
   connect_bd_intf_net -intf_net ccl_offload_0_m_axis_call_ack [get_bd_intf_pins ccl_offload_0/m_axis_call_ack] [get_bd_intf_pins hostctrl_0/sts]
+  connect_bd_intf_net -intf_net ccl_offload_0_m_axis_compression0 [get_bd_intf_pins ccl_offload_0/m_axis_compression0] [get_bd_intf_pins ccl_offload_0/s_axis_compression0]
+  connect_bd_intf_net -intf_net ccl_offload_0_m_axis_compression1 [get_bd_intf_pins ccl_offload_0/m_axis_compression1] [get_bd_intf_pins ccl_offload_0/s_axis_compression1]
+  connect_bd_intf_net -intf_net ccl_offload_0_m_axis_compression2 [get_bd_intf_pins ccl_offload_0/m_axis_compression2] [get_bd_intf_pins ccl_offload_0/s_axis_compression2]
   connect_bd_intf_net -intf_net ccl_offload_0_m_axis_dma0_mm2s_cmd [get_bd_intf_pins ccl_offload_0/m_axis_dma0_mm2s_cmd] [get_bd_intf_pins cyt_dma_sq_adapter_0/dma0_mm2s_cmd]
 connect_bd_intf_net -intf_net [get_bd_intf_nets ccl_offload_0_m_axis_dma0_mm2s_cmd] [get_bd_intf_pins cyt_dma_sq_adapter_0/dma0_mm2s_cmd] [get_bd_intf_pins system_ila_0/SLOT_2_AXIS]
   set_property HDL_ATTRIBUTE.DEBUG {true} [get_bd_intf_nets ccl_offload_0_m_axis_dma0_mm2s_cmd]
@@ -766,8 +820,8 @@ connect_bd_intf_net -intf_net [get_bd_intf_nets ccl_offload_0_m_axis_dma1_s2mm_c
   connect_bd_intf_net -intf_net ccl_offload_0_m_axis_eth_tx_data [get_bd_intf_pins ccl_offload_0/m_axis_eth_tx_data] [get_bd_intf_pins cclo_sq_adapter_0/s_axis_cclo]
   connect_bd_intf_net -intf_net ccl_offload_0_m_axis_krnl [get_bd_intf_pins ccl_offload_0/m_axis_krnl] [get_bd_intf_pins ccl_offload_0/s_axis_krnl]
   connect_bd_intf_net -intf_net ccl_offload_0_m_axis_rdma_sq [get_bd_intf_pins ccl_offload_0/m_axis_rdma_sq] [get_bd_intf_pins cclo_sq_adapter_0/cclo_sq]
-  connect_bd_intf_net -intf_net cclo_sq_adapter_0_cyt_sq_rd [get_bd_intf_pins axis_data_fifo_3/S_AXIS] [get_bd_intf_pins cclo_sq_adapter_0/cyt_sq_rd]
-  connect_bd_intf_net -intf_net cclo_sq_adapter_0_cyt_sq_wr [get_bd_intf_pins axis_data_fifo_2/S_AXIS] [get_bd_intf_pins cclo_sq_adapter_0/cyt_sq_wr]
+  connect_bd_intf_net -intf_net cclo_sq_adapter_0_cyt_sq_rd [get_bd_intf_pins axis_data_fifo_5/S_AXIS] [get_bd_intf_pins cclo_sq_adapter_0/cyt_sq_rd]
+  connect_bd_intf_net -intf_net cclo_sq_adapter_0_cyt_sq_wr [get_bd_intf_pins axis_data_fifo_4/S_AXIS] [get_bd_intf_pins cclo_sq_adapter_0/cyt_sq_wr]
   connect_bd_intf_net -intf_net cclo_sq_adapter_0_m_axis_cyt [get_bd_intf_pins axis_register_slice_11/S_AXIS] [get_bd_intf_pins cclo_sq_adapter_0/m_axis_cyt]
   connect_bd_intf_net -intf_net cyt_cq_dm_sts_conver_0_dm0_sts [get_bd_intf_pins ccl_offload_0/s_axis_dma0_s2mm_sts] [get_bd_intf_pins cyt_cq_dm_sts_conver_0/dm0_sts]
 connect_bd_intf_net -intf_net [get_bd_intf_nets cyt_cq_dm_sts_conver_0_dm0_sts] [get_bd_intf_pins cyt_cq_dm_sts_conver_0/dm0_sts] [get_bd_intf_pins system_ila_0/SLOT_12_AXIS]
@@ -789,14 +843,14 @@ connect_bd_intf_net -intf_net [get_bd_intf_nets cyt_dma_sq_adapter_0_cyt_sq_rd_c
   connect_bd_intf_net -intf_net cyt_dma_sq_adapter_0_cyt_sq_wr_cmd [get_bd_intf_pins axis_register_slice_9/S_AXIS] [get_bd_intf_pins cyt_dma_sq_adapter_0/cyt_sq_wr_cmd]
 connect_bd_intf_net -intf_net [get_bd_intf_nets cyt_dma_sq_adapter_0_cyt_sq_wr_cmd] [get_bd_intf_pins axis_register_slice_9/S_AXIS] [get_bd_intf_pins system_ila_0/SLOT_11_AXIS]
   set_property HDL_ATTRIBUTE.DEBUG {true} [get_bd_intf_nets cyt_dma_sq_adapter_0_cyt_sq_wr_cmd]
-  connect_bd_intf_net -intf_net cyt_dma_sq_adapter_0_dma0_mm2s_meta [get_bd_intf_pins axis_data_fifo_5/S_AXIS] [get_bd_intf_pins cyt_dma_sq_adapter_0/dma0_mm2s_meta]
-  connect_bd_intf_net -intf_net cyt_dma_sq_adapter_0_dma0_s2mm_meta [get_bd_intf_pins axis_data_fifo_7/S_AXIS] [get_bd_intf_pins cyt_dma_sq_adapter_0/dma0_s2mm_meta]
-  connect_bd_intf_net -intf_net cyt_dma_sq_adapter_0_dma1_mm2s_meta [get_bd_intf_pins axis_data_fifo_4/S_AXIS] [get_bd_intf_pins cyt_dma_sq_adapter_0/dma1_mm2s_meta]
-  connect_bd_intf_net -intf_net cyt_dma_sq_adapter_0_dma1_s2mm_meta [get_bd_intf_pins axis_data_fifo_6/S_AXIS] [get_bd_intf_pins cyt_dma_sq_adapter_0/dma1_s2mm_meta]
+  connect_bd_intf_net -intf_net cyt_dma_sq_adapter_0_dma0_mm2s_meta [get_bd_intf_pins axis_data_fifo_7/S_AXIS] [get_bd_intf_pins cyt_dma_sq_adapter_0/dma0_mm2s_meta]
+  connect_bd_intf_net -intf_net cyt_dma_sq_adapter_0_dma0_s2mm_meta [get_bd_intf_pins axis_data_fifo_9/S_AXIS] [get_bd_intf_pins cyt_dma_sq_adapter_0/dma0_s2mm_meta]
+  connect_bd_intf_net -intf_net cyt_dma_sq_adapter_0_dma1_mm2s_meta [get_bd_intf_pins axis_data_fifo_6/S_AXIS] [get_bd_intf_pins cyt_dma_sq_adapter_0/dma1_mm2s_meta]
+  connect_bd_intf_net -intf_net cyt_dma_sq_adapter_0_dma1_s2mm_meta [get_bd_intf_pins axis_data_fifo_8/S_AXIS] [get_bd_intf_pins cyt_dma_sq_adapter_0/dma1_s2mm_meta]
   connect_bd_intf_net -intf_net cyt_rdma_arbiter_0_m_axis_0 [get_bd_intf_pins ccl_offload_0/s_axis_eth_rx_data] [get_bd_intf_pins cyt_rdma_arbiter_0/m_axis_0]
   connect_bd_intf_net -intf_net cyt_rdma_arbiter_0_m_axis_1 [get_bd_intf_pins axis_register_slice_14/S_AXIS] [get_bd_intf_pins cyt_rdma_arbiter_0/m_axis_1]
   connect_bd_intf_net -intf_net cyt_rdma_arbiter_0_m_meta_0 [get_bd_intf_pins ccl_offload_0/s_axis_eth_notification] [get_bd_intf_pins cyt_rdma_arbiter_0/m_meta_0]
-  connect_bd_intf_net -intf_net cyt_rdma_arbiter_0_m_meta_1 [get_bd_intf_pins axis_data_fifo_0/S_AXIS] [get_bd_intf_pins cyt_rdma_arbiter_0/m_meta_1]
+  connect_bd_intf_net -intf_net cyt_rdma_arbiter_0_m_meta_1 [get_bd_intf_pins axis_data_fifo_2/S_AXIS] [get_bd_intf_pins cyt_rdma_arbiter_0/m_meta_1]
   connect_bd_intf_net -intf_net cyt_rq_rd_1 [get_bd_intf_ports cyt_rq_rd] [get_bd_intf_pins axis_register_slice_5/S_AXIS]
   connect_bd_intf_net -intf_net cyt_rq_wr_1 [get_bd_intf_ports cyt_rq_wr] [get_bd_intf_pins axis_register_slice_2/S_AXIS]
   connect_bd_intf_net -intf_net cyt_rreq_recv_0_1 [get_bd_intf_ports cyt_rreq_recv_0] [get_bd_intf_pins axis_switch_2_to_1_inst_2/S00_AXIS]
@@ -807,15 +861,17 @@ connect_bd_intf_net -intf_net [get_bd_intf_nets cyt_dma_sq_adapter_0_cyt_sq_wr_c
   connect_bd_intf_net -intf_net reduce_ops_0_out_r [get_bd_intf_pins ccl_offload_0/s_axis_arith_res] [get_bd_intf_pins reduce_ops_0/out_r]
   connect_bd_intf_net -intf_net s_axis_card_0_1 [get_bd_intf_ports s_axis_card_0] [get_bd_intf_pins axis_switch_2_to_1_inst_0/S01_AXIS]
   connect_bd_intf_net -intf_net s_axis_card_1_1 [get_bd_intf_ports s_axis_card_1] [get_bd_intf_pins axis_switch_2_to_1_inst_1/S01_AXIS]
+  connect_bd_intf_net -intf_net s_axis_card_2_1 [get_bd_intf_ports s_axis_card_2] [get_bd_intf_pins axis_data_fifo_0/S_AXIS]
   connect_bd_intf_net -intf_net s_axis_host_0_1 [get_bd_intf_ports s_axis_host_0] [get_bd_intf_pins axis_switch_2_to_1_inst_0/S00_AXIS]
   connect_bd_intf_net -intf_net s_axis_host_1_1 [get_bd_intf_ports s_axis_host_1] [get_bd_intf_pins axis_switch_2_to_1_inst_1/S00_AXIS]
+  connect_bd_intf_net -intf_net s_axis_host_2_1 [get_bd_intf_ports s_axis_host_2] [get_bd_intf_pins axis_data_fifo_1/S_AXIS]
   connect_bd_intf_net -intf_net smartconnect_0_M00_AXI [get_bd_intf_pins hostctrl_0/s_axi_control] [get_bd_intf_pins smartconnect_0/M00_AXI]
   connect_bd_intf_net -intf_net smartconnect_0_M01_AXI [get_bd_intf_pins ccl_offload_0/s_axi_control] [get_bd_intf_pins smartconnect_0/M01_AXI]
 
   # Create port connections
-  connect_bd_net -net ap_clk_0_1 [get_bd_ports ap_clk_0] [get_bd_pins axis_data_fifo_0/s_axis_aclk] [get_bd_pins axis_data_fifo_1/s_axis_aclk] [get_bd_pins axis_data_fifo_2/s_axis_aclk] [get_bd_pins axis_data_fifo_3/s_axis_aclk] [get_bd_pins axis_data_fifo_4/s_axis_aclk] [get_bd_pins axis_data_fifo_5/s_axis_aclk] [get_bd_pins axis_data_fifo_6/s_axis_aclk] [get_bd_pins axis_data_fifo_7/s_axis_aclk] [get_bd_pins axis_register_slice_0/aclk] [get_bd_pins axis_register_slice_1/aclk] [get_bd_pins axis_register_slice_10/aclk] [get_bd_pins axis_register_slice_11/aclk] [get_bd_pins axis_register_slice_12/aclk] [get_bd_pins axis_register_slice_13/aclk] [get_bd_pins axis_register_slice_14/aclk] [get_bd_pins axis_register_slice_2/aclk] [get_bd_pins axis_register_slice_3/aclk] [get_bd_pins axis_register_slice_4/aclk] [get_bd_pins axis_register_slice_5/aclk] [get_bd_pins axis_register_slice_6/aclk] [get_bd_pins axis_register_slice_7/aclk] [get_bd_pins axis_register_slice_8/aclk] [get_bd_pins axis_register_slice_9/aclk] [get_bd_pins axis_switch_1_to_2_inst_0/aclk] [get_bd_pins axis_switch_1_to_2_inst_1/aclk] [get_bd_pins axis_switch_1_to_2_inst_2/aclk] [get_bd_pins axis_switch_1_to_2_inst_3/aclk] [get_bd_pins axis_switch_2_to_1_inst_0/aclk] [get_bd_pins axis_switch_2_to_1_inst_1/aclk] [get_bd_pins axis_switch_2_to_1_inst_2/aclk] [get_bd_pins ccl_offload_0/ap_clk] [get_bd_pins cclo_sq_adapter_0/ap_clk] [get_bd_pins cyt_cq_dm_sts_conver_0/ap_clk] [get_bd_pins cyt_cq_dm_sts_conver_1/ap_clk] [get_bd_pins cyt_dma_sq_adapter_0/ap_clk] [get_bd_pins cyt_rdma_arbiter_0/ap_clk] [get_bd_pins hostctrl_0/ap_clk] [get_bd_pins reduce_ops_0/ap_clk] [get_bd_pins rst_ap_clk_0_250M/slowest_sync_clk] [get_bd_pins smartconnect_0/aclk] [get_bd_pins system_ila_0/clk]
-  connect_bd_net -net ap_rst_n_0_1 [get_bd_ports ap_rst_n_0] [get_bd_pins axis_data_fifo_4/s_axis_aresetn] [get_bd_pins axis_data_fifo_5/s_axis_aresetn] [get_bd_pins axis_data_fifo_6/s_axis_aresetn] [get_bd_pins axis_data_fifo_7/s_axis_aresetn] [get_bd_pins axis_register_slice_0/aresetn] [get_bd_pins axis_register_slice_1/aresetn] [get_bd_pins axis_register_slice_10/aresetn] [get_bd_pins axis_register_slice_11/aresetn] [get_bd_pins axis_register_slice_12/aresetn] [get_bd_pins axis_register_slice_13/aresetn] [get_bd_pins axis_register_slice_14/aresetn] [get_bd_pins axis_register_slice_7/aresetn] [get_bd_pins axis_register_slice_8/aresetn] [get_bd_pins axis_register_slice_9/aresetn] [get_bd_pins axis_switch_1_to_2_inst_0/aresetn] [get_bd_pins axis_switch_1_to_2_inst_1/aresetn] [get_bd_pins axis_switch_1_to_2_inst_2/aresetn] [get_bd_pins axis_switch_1_to_2_inst_3/aresetn] [get_bd_pins axis_switch_2_to_1_inst_0/aresetn] [get_bd_pins axis_switch_2_to_1_inst_1/aresetn] [get_bd_pins ccl_offload_0/ap_rst_n] [get_bd_pins cclo_sq_adapter_0/ap_rst_n] [get_bd_pins cyt_cq_dm_sts_conver_0/ap_rst_n] [get_bd_pins cyt_cq_dm_sts_conver_1/ap_rst_n] [get_bd_pins cyt_dma_sq_adapter_0/ap_rst_n] [get_bd_pins cyt_rdma_arbiter_0/ap_rst_n] [get_bd_pins hostctrl_0/ap_rst_n] [get_bd_pins reduce_ops_0/ap_rst_n] [get_bd_pins rst_ap_clk_0_250M/ext_reset_in] [get_bd_pins smartconnect_0/aresetn] [get_bd_pins system_ila_0/resetn]
-  connect_bd_net -net rst_ap_clk_0_250M_peripheral_aresetn [get_bd_pins axis_data_fifo_0/s_axis_aresetn] [get_bd_pins axis_data_fifo_1/s_axis_aresetn] [get_bd_pins axis_data_fifo_2/s_axis_aresetn] [get_bd_pins axis_data_fifo_3/s_axis_aresetn] [get_bd_pins axis_register_slice_2/aresetn] [get_bd_pins axis_register_slice_3/aresetn] [get_bd_pins axis_register_slice_4/aresetn] [get_bd_pins axis_register_slice_5/aresetn] [get_bd_pins axis_register_slice_6/aresetn] [get_bd_pins axis_switch_2_to_1_inst_2/aresetn] [get_bd_pins rst_ap_clk_0_250M/peripheral_aresetn]
+  connect_bd_net -net ap_clk_0_1 [get_bd_ports ap_clk_0] [get_bd_pins axis_data_fifo_0/s_axis_aclk] [get_bd_pins axis_data_fifo_1/s_axis_aclk] [get_bd_pins axis_data_fifo_2/s_axis_aclk] [get_bd_pins axis_data_fifo_3/s_axis_aclk] [get_bd_pins axis_data_fifo_4/s_axis_aclk] [get_bd_pins axis_data_fifo_5/s_axis_aclk] [get_bd_pins axis_data_fifo_6/s_axis_aclk] [get_bd_pins axis_data_fifo_7/s_axis_aclk] [get_bd_pins axis_data_fifo_8/s_axis_aclk] [get_bd_pins axis_data_fifo_9/s_axis_aclk] [get_bd_pins axis_register_slice_0/aclk] [get_bd_pins axis_register_slice_1/aclk] [get_bd_pins axis_register_slice_10/aclk] [get_bd_pins axis_register_slice_11/aclk] [get_bd_pins axis_register_slice_12/aclk] [get_bd_pins axis_register_slice_13/aclk] [get_bd_pins axis_register_slice_14/aclk] [get_bd_pins axis_register_slice_2/aclk] [get_bd_pins axis_register_slice_3/aclk] [get_bd_pins axis_register_slice_4/aclk] [get_bd_pins axis_register_slice_5/aclk] [get_bd_pins axis_register_slice_6/aclk] [get_bd_pins axis_register_slice_7/aclk] [get_bd_pins axis_register_slice_8/aclk] [get_bd_pins axis_register_slice_9/aclk] [get_bd_pins axis_switch_1_to_2_inst_0/aclk] [get_bd_pins axis_switch_1_to_2_inst_1/aclk] [get_bd_pins axis_switch_1_to_2_inst_2/aclk] [get_bd_pins axis_switch_1_to_2_inst_3/aclk] [get_bd_pins axis_switch_2_to_1_inst_0/aclk] [get_bd_pins axis_switch_2_to_1_inst_1/aclk] [get_bd_pins axis_switch_2_to_1_inst_2/aclk] [get_bd_pins ccl_offload_0/ap_clk] [get_bd_pins cclo_sq_adapter_0/ap_clk] [get_bd_pins cyt_cq_dm_sts_conver_0/ap_clk] [get_bd_pins cyt_cq_dm_sts_conver_1/ap_clk] [get_bd_pins cyt_dma_sq_adapter_0/ap_clk] [get_bd_pins cyt_rdma_arbiter_0/ap_clk] [get_bd_pins hostctrl_0/ap_clk] [get_bd_pins reduce_ops_0/ap_clk] [get_bd_pins rst_ap_clk_0_250M/slowest_sync_clk] [get_bd_pins smartconnect_0/aclk] [get_bd_pins system_ila_0/clk]
+  connect_bd_net -net ap_rst_n_0_1 [get_bd_ports ap_rst_n_0] [get_bd_pins axis_data_fifo_6/s_axis_aresetn] [get_bd_pins axis_data_fifo_7/s_axis_aresetn] [get_bd_pins axis_data_fifo_8/s_axis_aresetn] [get_bd_pins axis_data_fifo_9/s_axis_aresetn] [get_bd_pins axis_register_slice_0/aresetn] [get_bd_pins axis_register_slice_1/aresetn] [get_bd_pins axis_register_slice_10/aresetn] [get_bd_pins axis_register_slice_11/aresetn] [get_bd_pins axis_register_slice_12/aresetn] [get_bd_pins axis_register_slice_13/aresetn] [get_bd_pins axis_register_slice_14/aresetn] [get_bd_pins axis_register_slice_7/aresetn] [get_bd_pins axis_register_slice_8/aresetn] [get_bd_pins axis_register_slice_9/aresetn] [get_bd_pins axis_switch_1_to_2_inst_0/aresetn] [get_bd_pins axis_switch_1_to_2_inst_1/aresetn] [get_bd_pins axis_switch_1_to_2_inst_2/aresetn] [get_bd_pins axis_switch_1_to_2_inst_3/aresetn] [get_bd_pins axis_switch_2_to_1_inst_0/aresetn] [get_bd_pins axis_switch_2_to_1_inst_1/aresetn] [get_bd_pins ccl_offload_0/ap_rst_n] [get_bd_pins cclo_sq_adapter_0/ap_rst_n] [get_bd_pins cyt_cq_dm_sts_conver_0/ap_rst_n] [get_bd_pins cyt_cq_dm_sts_conver_1/ap_rst_n] [get_bd_pins cyt_dma_sq_adapter_0/ap_rst_n] [get_bd_pins cyt_rdma_arbiter_0/ap_rst_n] [get_bd_pins hostctrl_0/ap_rst_n] [get_bd_pins reduce_ops_0/ap_rst_n] [get_bd_pins rst_ap_clk_0_250M/ext_reset_in] [get_bd_pins smartconnect_0/aresetn] [get_bd_pins system_ila_0/resetn]
+  connect_bd_net -net rst_ap_clk_0_250M_peripheral_aresetn [get_bd_pins axis_data_fifo_0/s_axis_aresetn] [get_bd_pins axis_data_fifo_1/s_axis_aresetn] [get_bd_pins axis_data_fifo_2/s_axis_aresetn] [get_bd_pins axis_data_fifo_3/s_axis_aresetn] [get_bd_pins axis_data_fifo_4/s_axis_aresetn] [get_bd_pins axis_data_fifo_5/s_axis_aresetn] [get_bd_pins axis_register_slice_2/aresetn] [get_bd_pins axis_register_slice_3/aresetn] [get_bd_pins axis_register_slice_4/aresetn] [get_bd_pins axis_register_slice_5/aresetn] [get_bd_pins axis_register_slice_6/aresetn] [get_bd_pins axis_switch_2_to_1_inst_2/aresetn] [get_bd_pins rst_ap_clk_0_250M/peripheral_aresetn]
   connect_bd_net -net xlconstant_0_dout [get_bd_pins axis_switch_2_to_1_inst_0/s_req_suppress] [get_bd_pins xlconstant_0/dout]
   connect_bd_net -net xlconstant_1_dout [get_bd_pins axis_switch_2_to_1_inst_1/s_req_suppress] [get_bd_pins xlconstant_1/dout]
   connect_bd_net -net xlconstant_2_dout [get_bd_pins axis_switch_2_to_1_inst_2/s_req_suppress] [get_bd_pins xlconstant_2/dout]
@@ -826,35 +882,13 @@ connect_bd_intf_net -intf_net [get_bd_intf_nets cyt_dma_sq_adapter_0_cyt_sq_wr_c
 
 # create some hierarchies
 group_bd_cells cclo [get_bd_cells hostctrl_0] [get_bd_cells smartconnect_0] [get_bd_cells reduce_ops_0] [get_bd_cells ccl_offload_0]
+group_bd_cells rrsp_bypass [get_bd_cells axis_data_fifo_1] [get_bd_cells axis_data_fifo_0]
 group_bd_cells rrsp_arbitration [get_bd_cells axis_switch_1_to_2_inst_2] [get_bd_cells axis_register_slice_0] [get_bd_cells axis_register_slice_1] [get_bd_cells cyt_rdma_arbiter_0] [get_bd_cells axis_register_slice_14] [get_bd_cells axis_register_slice_2]
-group_bd_cells completion_conversion [get_bd_cells axis_register_slice_3] [get_bd_cells axis_data_fifo_4] [get_bd_cells axis_data_fifo_5] [get_bd_cells axis_register_slice_4] [get_bd_cells axis_data_fifo_6] [get_bd_cells cyt_cq_dm_sts_conver_0] [get_bd_cells axis_data_fifo_7] [get_bd_cells cyt_cq_dm_sts_conver_1]
-group_bd_cells request_conversion [get_bd_cells axis_register_slice_9] [get_bd_cells axis_data_fifo_0] [get_bd_cells axis_data_fifo_1] [get_bd_cells axis_data_fifo_2] [get_bd_cells axis_data_fifo_3] [get_bd_cells cyt_dma_sq_adapter_0] [get_bd_cells axis_register_slice_10]
+group_bd_cells completion_conversion [get_bd_cells axis_register_slice_3] [get_bd_cells axis_data_fifo_6] [get_bd_cells axis_data_fifo_7] [get_bd_cells axis_register_slice_4] [get_bd_cells axis_data_fifo_8] [get_bd_cells cyt_cq_dm_sts_conver_0] [get_bd_cells axis_data_fifo_9] [get_bd_cells cyt_cq_dm_sts_conver_1]
+group_bd_cells request_conversion [get_bd_cells axis_register_slice_9] [get_bd_cells axis_data_fifo_2] [get_bd_cells axis_data_fifo_3] [get_bd_cells axis_data_fifo_4] [get_bd_cells axis_data_fifo_5] [get_bd_cells cyt_dma_sq_adapter_0] [get_bd_cells axis_register_slice_10]
 group_bd_cells sq_conversion [get_bd_cells axis_switch_2_to_1_inst_2] [get_bd_cells axis_switch_1_to_2_inst_3] [get_bd_cells axis_register_slice_11] [get_bd_cells axis_register_slice_6] [get_bd_cells cclo_sq_adapter_0] [get_bd_cells xlconstant_2]
 group_bd_cells local_dma_input_muxing [get_bd_cells axis_switch_2_to_1_inst_0] [get_bd_cells axis_switch_2_to_1_inst_1] [get_bd_cells xlconstant_0] [get_bd_cells axis_register_slice_7] [get_bd_cells axis_register_slice_8] [get_bd_cells xlconstant_1]
 group_bd_cells local_dma_output_demuxing [get_bd_cells axis_switch_1_to_2_inst_0] [get_bd_cells axis_register_slice_12] [get_bd_cells axis_register_slice_13] [get_bd_cells axis_switch_1_to_2_inst_1]
-
-#create ila_top
-create_ip -name ila -vendor xilinx.com -library ip -version 6.2 -module_name ila_top
-set_property -dict [ list CONFIG.C_PROBE2_WIDTH {128} ] [get_ips ila_top]
-set_property -dict [ list CONFIG.C_PROBE5_WIDTH {128} ] [get_ips ila_top]
-set_property -dict [ list CONFIG.C_PROBE8_WIDTH {128} ] [get_ips ila_top]
-set_property -dict [ list CONFIG.C_PROBE11_WIDTH {128} ] [get_ips ila_top]
-set_property -dict [ list CONFIG.C_PROBE12_WIDTH {32} ] [get_ips ila_top]
-set_property -dict [ list CONFIG.C_PROBE15_WIDTH {32} ] [get_ips ila_top]
-set_property -dict [ list CONFIG.C_PROBE20_WIDTH {512} ] [get_ips ila_top]
-set_property -dict [ list CONFIG.C_PROBE23_WIDTH {512} ] [get_ips ila_top]
-set_property -dict [ list CONFIG.C_PROBE26_WIDTH {512} ] [get_ips ila_top]
-set_property -dict [ list CONFIG.C_PROBE29_WIDTH {512} ] [get_ips ila_top]
-set_property -dict [ list CONFIG.C_PROBE32_WIDTH {512} ] [get_ips ila_top]
-set_property -dict [ list CONFIG.C_PROBE35_WIDTH {512} ] [get_ips ila_top]
-set_property -dict [ list CONFIG.C_PROBE38_WIDTH {512} ] [get_ips ila_top]
-set_property -dict [ list CONFIG.C_PROBE41_WIDTH {512} ] [get_ips ila_top]
-set_property -dict [ list CONFIG.C_NUM_OF_PROBES {42} ] [get_ips ila_top]
-set_property -dict [ list CONFIG.C_EN_STRG_QUAL {1} ] [get_ips ila_top]
-set_property -dict [ list CONFIG.C_INPUT_PIPE_STAGES {2} ] [get_ips ila_top]
-set_property -dict [ list CONFIG.C_DATA_DEPTH {2048} ] [get_ips ila_top]
-
-#set_clock_uncertainty 0.2
 
 validate_bd_design
 save_bd_design
