@@ -59,7 +59,7 @@ template <typename dtype> class CoyoteBuffer : public Buffer<dtype> {
       this->n_pages = (buffer_size + page_size - 1) / page_size;
       std::cerr << "CoyoteBuffer contructor called! page_size:"<<page_size<<", buffer_size:"<<buffer_size<<",n_pages:"<<n_pages<< std::endl;
 
-      this->aligned_buffer = (dtype *)this->device->coyote_proc->getMem({coyote::CoyoteAlloc::HPF, n_pages});
+      this->aligned_buffer = (dtype *)this->device->coyote_proc->getMem({coyote::CoyoteAllocType::HPF, this->buffer_size, true});
 
       this->update_buffer(this->aligned_buffer, (addr_t)this->aligned_buffer); 
 
@@ -114,13 +114,13 @@ template <typename dtype> class CoyoteBuffer : public Buffer<dtype> {
     {
       std::cerr << "sync_from_device at address: " << std::setbase(16) << (uint64_t)this->aligned_buffer << ", size: " << std::setbase(10) << this->size() << std::endl;
 
-      coyote::sgEntry sg;
+      coyote::syncSg sg;
       memset(&sg, 0, sizeof(coyote::syncSg));
-      sg.sync.addr = this->aligned_buffer;
-      sg.sync.size = this->size();
+      sg.addr = this->aligned_buffer;
+      sg.len = this->size();
 
       //int ret_code = 
-      this->device->coyote_proc->invoke(coyote::CoyoteOper::LOCAL_SYNC, &sg, {true, true, true});
+      this->device->coyote_proc->invoke(coyote::CoyoteOper::LOCAL_SYNC, sg);
     
       //if (!ret_code) {
         this->host_flag = true;
@@ -135,13 +135,13 @@ template <typename dtype> class CoyoteBuffer : public Buffer<dtype> {
     {
       std::cerr << "sync_to_device at address: " << std::setbase(16) << (uint64_t)this->aligned_buffer << ", size: " << std::setbase(10) << this->size() << std::endl;
 
-      coyote::sgEntry sg;
+      coyote::syncSg sg;
       memset(&sg, 0, sizeof(coyote::syncSg));
-      sg.sync.addr = this->aligned_buffer;
-      sg.sync.size = this->size();
+      sg.addr = this->aligned_buffer;
+      sg.len = this->size();
 
       //int ret_code = 
-      this->device->coyote_proc->invoke(coyote::CoyoteOper::LOCAL_OFFLOAD, &sg, {true, true, true});
+      this->device->coyote_proc->invoke(coyote::CoyoteOper::LOCAL_OFFLOAD, sg);
     
       //if (!ret_code) {
         this->host_flag = false;

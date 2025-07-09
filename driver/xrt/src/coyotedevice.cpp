@@ -21,6 +21,7 @@
 #include "cThread.hpp"
 #include <future>
 #include <iomanip>
+#include <bitset>
 
 static void finish_coyote_request(ACCL::CoyoteRequest *req) {
   req->wait_kernel();
@@ -260,6 +261,7 @@ void CoyoteRequest::start() {
     }
     case ACCL::operation::config:{
       coyote_proc->setCSR(static_cast<uint32_t>(options.scenario), (OFFSET_HOSTCTRL + HOSTCTRL_ADDR::SCEN)>>2);
+      coyote_proc->setCSR(static_cast<uint32_t>(options.count), (OFFSET_HOSTCTRL + HOSTCTRL_ADDR::LEN)>>2);
       coyote_proc->setCSR(static_cast<uint32_t>(function), (OFFSET_HOSTCTRL + HOSTCTRL_ADDR::FUNCTION_R)>>2);
       //coyote_proc->setCSR(static_cast<uint32_t>(flags), (OFFSET_HOSTCTRL + HOSTCTRL_ADDR::STREAM_FLAGS)>>2); //safe to delete?
     break;
@@ -285,7 +287,7 @@ void CoyoteRequest::wait_kernel() {
 }
 
 CoyoteDevice::CoyoteDevice(): num_qp(0) {
-  this->coyote_proc = new coyote::cThread<std::any>(targetRegion, getpid(), 0);
+  this->coyote_proc = new coyote::cThread(targetRegion, getpid(), 0);
 	std::cerr << "ACLL DEBUG: aquiring cProc: targetRegion: " << targetRegion << ", cPid: " << coyote_proc->getCtid() << std::endl;
 }
 
@@ -293,7 +295,7 @@ CoyoteDevice::CoyoteDevice(unsigned int num_qp): num_qp(num_qp) {
 
   for (unsigned int i=0; i<(num_qp+1); i++)
   {
-    coyote::cThread<std::any>* cproc = new coyote::cThread<std::any>(targetRegion, getpid(), 0);
+    coyote::cThread* cproc = new coyote::cThread(targetRegion, getpid(), 0);
     coyote_qProc_vec.push_back(cproc);
   }
 

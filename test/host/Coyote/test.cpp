@@ -402,7 +402,7 @@ void exchange_qp(unsigned int master_rank, unsigned int slave_rank, unsigned int
 		int connection = (device->coyote_qProc_vec[slave_rank]->getQpair()->local.qpn & 0xFFFF) | ((device->coyote_qProc_vec[slave_rank]->getQpair()->remote.qpn & 0xFFFF) << 16);
 		device->coyote_qProc_vec[slave_rank]->getQpair()->local.print("Local ");
 		device->coyote_qProc_vec[slave_rank]->getQpair()->remote.print("Remote");
-		device->coyote_qProc_vec[slave_rank]->setConnection(connection);
+		//device->coyote_qProc_vec[slave_rank]->setConnection(connection);
 		device->coyote_qProc_vec[slave_rank]->writeQpContext(ranks[slave_rank].port);
 		device->coyote_qProc_vec[slave_rank]->doArpLookup(device->coyote_qProc_vec[slave_rank]->getQpair()->remote.ip_addr);
 		ranks[slave_rank].session_id = device->coyote_qProc_vec[slave_rank]->getQpair()->local.qpn;
@@ -411,7 +411,7 @@ void exchange_qp(unsigned int master_rank, unsigned int slave_rank, unsigned int
 		int connection = (device->coyote_qProc_vec[master_rank]->getQpair()->local.qpn & 0xFFFF) | ((device->coyote_qProc_vec[master_rank]->getQpair()->remote.qpn & 0xFFFF) << 16);
 		device->coyote_qProc_vec[master_rank]->getQpair()->local.print("Local ");
 		device->coyote_qProc_vec[master_rank]->getQpair()->remote.print("Remote");
-		device->coyote_qProc_vec[master_rank]->setConnection(connection);
+		//device->coyote_qProc_vec[master_rank]->setConnection(connection);
 		device->coyote_qProc_vec[master_rank]->writeQpContext(ranks[master_rank].port);
 		device->coyote_qProc_vec[master_rank]->doArpLookup(device->coyote_qProc_vec[slave_rank]->getQpair()->remote.ip_addr);
 		ranks[master_rank].session_id = device->coyote_qProc_vec[master_rank]->getQpair()->local.qpn;
@@ -607,6 +607,7 @@ void test_sendrcv(ACCL::ACCL &accl, options_t &options) {
 		} else {
 			std::cout << "Test is successful!" << std::endl;
 		}
+		debug(accl.dump_eager_rx_buffers(false));
 	}
 	
 	op_buf->free_buffer();
@@ -1191,15 +1192,15 @@ void test_accl_base(options_t options)
 
 	MPI_Barrier(MPI_COMM_WORLD);
 	
-	test_copy(*accl, options);
+	//test_copy(*accl, options);
 	
-	/*if(options.test_mode == ACCL_SEND || options.test_mode == 0){
+	if(options.test_mode == ACCL_SEND || options.test_mode == 0){
 		debug(accl->dump_eager_rx_buffers(false));
 		MPI_Barrier(MPI_COMM_WORLD);
 		test_sendrcv(*accl, options);
 		debug(accl->dump_communicator());
 		debug(accl->dump_eager_rx_buffers(false));
-	}*/
+	}
 	if(options.test_mode == ACCL_BCAST || options.test_mode == 0){
 		debug(accl->dump_eager_rx_buffers(false));
 		MPI_Barrier(MPI_COMM_WORLD);
@@ -1228,7 +1229,7 @@ void test_accl_base(options_t options)
 		debug(accl->dump_communicator());
 		debug(accl->dump_eager_rx_buffers(false));
 	}
-	if(options.test_mode == ACCL_REDUCE || options.test_mode == 0){
+	/*if(options.test_mode == ACCL_REDUCE || options.test_mode == 0){
 		debug(accl->dump_eager_rx_buffers(false));
 		MPI_Barrier(MPI_COMM_WORLD);
 		int root = 0;
@@ -1242,7 +1243,7 @@ void test_accl_base(options_t options)
 		test_allreduce(*accl, options, reduceFunction::SUM);
 		debug(accl->dump_communicator());
 		debug(accl->dump_eager_rx_buffers(false));
-	}
+	}*/
 	if(options.test_mode == ACCL_BARRIER){
 		std::cout << "Start barrier test..."<< std::endl;
 		for (int n = 0; n < options.nruns; n++)
