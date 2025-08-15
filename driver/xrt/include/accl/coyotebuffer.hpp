@@ -57,14 +57,13 @@ template <typename dtype> class CoyoteBuffer : public Buffer<dtype> {
       size_t page_size = 1ULL << 21;
       this->buffer_size = length * sizeof(dtype);
       this->n_pages = (buffer_size + page_size - 1) / page_size;
-      std::cerr << "CoyoteBuffer contructor called! page_size:"<<page_size<<", buffer_size:"<<buffer_size<<",n_pages:"<<n_pages<< std::endl;
-
       this->aligned_buffer = (dtype *)this->device->coyote_proc->getMem({coyote::CoyoteAllocType::HPF, this->buffer_size, true});
 
       this->update_buffer(this->aligned_buffer, (addr_t)this->aligned_buffer); 
 
       std::cerr << "Allocation successful! Allocated buffer: "<<std::setbase(16)<<(uint64_t)this->aligned_buffer << std::setbase(10) <<", Size: " << this->_size << std::endl;
 
+      //buffers in coyote per default on host memory
       host_flag = true;
       
 
@@ -117,14 +116,10 @@ template <typename dtype> class CoyoteBuffer : public Buffer<dtype> {
       coyote::syncSg sg;
       memset(&sg, 0, sizeof(coyote::syncSg));
       sg.addr = this->aligned_buffer;
-      sg.len = this->size();
-
-      //int ret_code = 
+      sg.len = this->size(); 
       this->device->coyote_proc->invoke(coyote::CoyoteOper::LOCAL_SYNC, sg);
     
-      //if (!ret_code) {
-        this->host_flag = true;
-      //}
+      this->host_flag = true;
     }
 
     /**
@@ -139,13 +134,9 @@ template <typename dtype> class CoyoteBuffer : public Buffer<dtype> {
       memset(&sg, 0, sizeof(coyote::syncSg));
       sg.addr = this->aligned_buffer;
       sg.len = this->size();
-
-      //int ret_code = 
       this->device->coyote_proc->invoke(coyote::CoyoteOper::LOCAL_OFFLOAD, sg);
     
-      //if (!ret_code) {
-        this->host_flag = false;
-      //}
+      this->host_flag = false;
     }
 
 

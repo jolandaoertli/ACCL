@@ -126,14 +126,12 @@ ACCLRequest *ACCL::send(BaseBuffer &srcbuf, unsigned int count,
   CCLO::Options options{};
 
   if (from_fpga == false) {
-    //srcbuf.sync_to_device();
+    srcbuf.sync_to_device();
   }
-  std::cout << "max eager size before send " << cclo->read(CCLO_ADDR::EGR_RX_BUF_SIZE_OFFSET) << std::endl;
   options.scenario = operation::send;
   options.comm = communicators[comm_id].communicators_addr();
   options.addr_0 = &srcbuf;
   options.count = count;
-  std::cout << "sending with count: " << count << std::endl;
   options.root_src_dst = dst; 
   options.tag = tag;
   options.compress_dtype = compress_dtype;
@@ -144,7 +142,6 @@ ACCLRequest *ACCL::send(BaseBuffer &srcbuf, unsigned int count,
     wait(handle);
     check_return_value("send", handle);
   }
-  std::cout << "max eager size after send " << cclo->read(CCLO_ADDR::EGR_RX_BUF_SIZE_OFFSET) << std::endl;
   return handle;
 }
 
@@ -245,7 +242,6 @@ ACCLRequest *ACCL::recv(BaseBuffer &dstbuf, unsigned int count,
                  "sync_from_device() after waiting"
               << std::endl;
   }
-  std::cout << "max eager size before recv " << cclo->read(CCLO_ADDR::EGR_RX_BUF_SIZE_OFFSET) << std::endl;
   options.scenario = operation::recv;
   options.comm = communicators[comm_id].communicators_addr();
   options.addr_2 = &dstbuf;
@@ -259,11 +255,10 @@ ACCLRequest *ACCL::recv(BaseBuffer &dstbuf, unsigned int count,
   if (!run_async) {
     wait(handle);
     if (to_fpga == false) {
-      //dstbuf.sync_from_device();
+      dstbuf.sync_from_device();
     }
     check_return_value("recv", handle);
   }
-  std::cout << "max eager size after recv " << cclo->read(CCLO_ADDR::EGR_RX_BUF_SIZE_OFFSET) << std::endl;
   return handle;
 }
 
@@ -288,7 +283,6 @@ ACCLRequest *ACCL::recv(dataType dst_data_type, unsigned int count,
     wait(handle);
     check_return_value("recv", handle);
   }
-
   return handle;
 }
 
@@ -303,11 +297,9 @@ ACCLRequest *ACCL::copy(BaseBuffer *srcbuf, BaseBuffer *dstbuf, unsigned int cou
                  "sync_from_device() after waiting"
               << std::endl;
   }
-  //remove sync for copy_test
-  /*if (from_fpga == false) {
+  if (from_fpga == false) {
     srcbuf->sync_to_device();
-  }*/
-  std::cout << "max eager size before copy " << cclo->read(CCLO_ADDR::EGR_RX_BUF_SIZE_OFFSET) << std::endl;
+  }
   options.scenario = operation::copy;
   options.addr_0 = srcbuf;
   options.addr_2 = dstbuf;
@@ -321,13 +313,11 @@ ACCLRequest *ACCL::copy(BaseBuffer *srcbuf, BaseBuffer *dstbuf, unsigned int cou
   if (!run_async) {
     std::chrono::milliseconds timeout(1000);
     wait(handle, timeout);
-    //remove sync for copy_test
-    /*if (to_fpga == false) {
+    if (to_fpga == false) {
       dstbuf->sync_from_device();
-    }*/
+    }
     check_return_value("copy", handle);
   }
-  std::cout << "max eager size after copy " << cclo->read(CCLO_ADDR::EGR_RX_BUF_SIZE_OFFSET) << std::endl;
   return handle;
 }
 
@@ -424,7 +414,7 @@ ACCLRequest *ACCL::bcast(BaseBuffer &buf, unsigned int count,
   }
 
   if (from_fpga == false && is_root == true) {
-    //buf.sync_to_device();
+    buf.sync_to_device();
   }
 
   options.scenario = operation::bcast;
@@ -440,7 +430,7 @@ ACCLRequest *ACCL::bcast(BaseBuffer &buf, unsigned int count,
   if (!run_async) {
     wait(handle);
     if (to_fpga == false) {
-      //buf.sync_from_device();
+      buf.sync_from_device();
     }
     check_return_value("bcast", handle);
   }
@@ -472,7 +462,7 @@ ACCLRequest *ACCL::scatter(BaseBuffer &sendbuf,
 
   if (from_fpga == false && is_root == true) {
     auto slice = sendbuf.slice(0, count * communicator.get_ranks()->size());
-    //slice->sync_to_device();
+    slice->sync_to_device();
   }
 
   options.scenario = operation::scatter;
@@ -489,7 +479,7 @@ ACCLRequest *ACCL::scatter(BaseBuffer &sendbuf,
     wait(handle);
     if (to_fpga == false) {
       auto slice = recvbuf.slice(0, count);
-      //slice->sync_from_device();
+      slice->sync_from_device();
     }
     check_return_value("scatter", handle);
   }
@@ -530,7 +520,7 @@ ACCLRequest *ACCL::gather(BaseBuffer &sendbuf,
 
   if (from_fpga == false) {
     auto slice = sendbuf.slice(0, count);
-    //slice->sync_to_device();
+    slice->sync_to_device();
   }
 
   options.scenario = operation::gather;
@@ -547,7 +537,7 @@ ACCLRequest *ACCL::gather(BaseBuffer &sendbuf,
     wait(handle);
     if (to_fpga == false && is_root == true) {
       auto slice = recvbuf.slice(0, count * communicator.get_ranks()->size());
-      //slice->sync_from_device();
+      slice->sync_from_device();
     }
     check_return_value("gather", handle);
   }
@@ -586,7 +576,7 @@ ACCLRequest *ACCL::allgather(BaseBuffer &sendbuf,
 
   if (from_fpga == false) {
     auto slice = sendbuf.slice(0, count);
-    //slice->sync_to_device();
+    slice->sync_to_device();
   }
 
   options.scenario = operation::allgather;
@@ -603,7 +593,7 @@ ACCLRequest *ACCL::allgather(BaseBuffer &sendbuf,
     wait(handle);
     if (to_fpga == false) {
       auto slice = recvbuf.slice(0, count * communicator.get_ranks()->size());
-      //slice->sync_from_device();
+      slice->sync_from_device();
     }
     check_return_value("allgather", handle);
   }
@@ -635,7 +625,7 @@ ACCLRequest *ACCL::reduce(BaseBuffer &sendbuf,
 
   if (from_fpga == false) {
     auto slice = sendbuf.slice(0, count);
-    //slice->sync_to_device();
+    slice->sync_to_device();
   }
 
   options.scenario = operation::reduce;
@@ -653,7 +643,7 @@ ACCLRequest *ACCL::reduce(BaseBuffer &sendbuf,
     wait(handle);
     if (to_fpga == false && is_root == true) {
       auto slice = recvbuf.slice(0, count);
-      //slice->sync_from_device();
+      slice->sync_from_device();
     }
     check_return_value("reduce", handle);
   }
@@ -699,7 +689,7 @@ ACCLRequest *ACCL::reduce(dataType src_data_type,
     wait(handle);
     if (to_fpga == false && is_root == true) {
       auto slice = recvbuf.slice(0, count);
-      //slice->sync_from_device();
+      slice->sync_from_device();
     }
     check_return_value("reduce", handle);
   }
@@ -723,7 +713,7 @@ ACCLRequest *ACCL::reduce(BaseBuffer &sendbuf, dataType dst_data_type,
 
   if (from_fpga == false) {
     auto slice = sendbuf.slice(0, count);
-    //slice->sync_to_device();
+    slice->sync_to_device();
   }
 
   options.scenario = operation::reduce;
@@ -802,7 +792,7 @@ ACCLRequest *ACCL::allreduce(BaseBuffer &sendbuf,
 
   if (from_fpga == false) {
     auto slice = sendbuf.slice(0, count);
-    //slice->sync_to_device();
+    slice->sync_to_device();
   }
 
   options.scenario = operation::allreduce;
@@ -820,7 +810,7 @@ ACCLRequest *ACCL::allreduce(BaseBuffer &sendbuf,
     wait(handle);
     if (to_fpga == false) {
       auto slice = recvbuf.slice(0, count);
-      //slice->sync_from_device();
+      slice->sync_from_device();
     }
     check_return_value("allreduce", handle);
   }
@@ -1092,7 +1082,6 @@ void ACCL::initialize(const std::vector<rank_t> &ranks, int local_rank,
 
   debug("Configuring Eager RX Buffers");
   setup_eager_rx_buffers(n_egr_rx_bufs, egr_rx_buf_size, rxbufmem, rxEager_host);
-  std::cout << "eager rx buf size: " << cclo->read(CCLO_ADDR::EGR_RX_BUF_SIZE_OFFSET) << std::endl;
   debug("Configuring Rendezvous Spare Buffers");
   setup_rendezvous_spare_buffers(max_rndzv_size, rxbufmem);
 
@@ -1145,15 +1134,12 @@ addr_t ACCL::get_arithmetic_config_addr(std::pair<dataType, dataType> id) {
 void ACCL::setup_eager_rx_buffers(size_t n_egr_rx_bufs, addr_t egr_rx_buf_size,
                             const std::vector<int> &devicemem, bool host) {
   addr_t address = CCLO_ADDR::EGR_RX_BUF_SIZE_OFFSET;
-  std::cout << "address buffers " << address << std::endl;
-  std::cout << "eager rx buffers are host: " << std::boolalpha << host << std::endl;
   eager_rx_buffer_size = egr_rx_buf_size;
   for (size_t i = 0; i < n_egr_rx_bufs; ++i) {
     // create, clear and sync buffers to device
     Buffer<int8_t> *buf;
 
     if (sim_mode) {
-      //std::cout << "using sim buffer" << std::endl;
       if(host){
         buf = new SimBuffer(new int8_t[eager_rx_buffer_size](), eager_rx_buffer_size, dataType::int8,
                           static_cast<SimDevice *>(cclo)->get_context(), true, ACCL_SIM_DEFAULT_BANK);
@@ -1170,14 +1156,12 @@ void ACCL::setup_eager_rx_buffers(size_t n_egr_rx_bufs, addr_t egr_rx_buf_size,
       }
     } else if(cclo->get_device_type() == CCLO::coyote_device){
       if(host){
-        //TODO: how to define host buffers in Coyote? (host flag is always set to true)
-        //buf = ACCL::ACCL accl.create_buffer_host<int8_t>(eager_rx_buffer_size, dataType::int8);
+        //buffers in coyote per default on host
         buf = new CoyoteBuffer<int8_t>(eager_rx_buffer_size, dataType::int8, static_cast<CoyoteDevice *>(cclo));
       }else{
         buf = new CoyoteBuffer<int8_t>(eager_rx_buffer_size, dataType::int8, static_cast<CoyoteDevice *>(cclo));
       } 
     }
-    std::cout << "buffer is host " << buf->is_host_only() << std::endl;
     //add if else as well, test for coyote backend + eager on host
     if(!(host && cclo->get_device_type() == CCLO::coyote_device)){
       buf->sync_to_device();
@@ -1212,7 +1196,6 @@ void ACCL::setup_eager_rx_buffers(size_t n_egr_rx_bufs, addr_t egr_rx_buf_size,
   cclo->write(CCLO_ADDR::NUM_EGR_RX_BUFS_OFFSET, n_egr_rx_bufs);
 
   current_config_address = address + 4;
-
 }
 
 void ACCL::setup_rendezvous_spare_buffers(addr_t rndzv_spare_buf_size, const std::vector<int> &devicemem){
@@ -1228,6 +1211,7 @@ void ACCL::setup_rendezvous_spare_buffers(addr_t rndzv_spare_buf_size, const std
     } else if(cclo->get_device_type() == CCLO::coyote_device){
       buf = new CoyoteBuffer<int8_t>(max_rndzv_msg_size, dataType::int8, static_cast<CoyoteDevice *>(cclo));
     }
+    //TODO: make mem residience configurable as well for nocard configuration
     //buf->sync_to_device();
     utility_spares.emplace_back(buf);
   }
@@ -1253,7 +1237,6 @@ void ACCL::configure_tuning_parameters(){
 
 void ACCL::check_return_value(const std::string function_name, ACCLRequest *request) {
   val_t retcode = cclo->get_retcode(request);
-  std::cout << "retcode : " << retcode << std::endl;
   if (retcode != 0) {
     std::stringstream stream;
     const std::bitset<error_code_bits> retcode_bitset{retcode};
@@ -1355,12 +1338,15 @@ void ACCL::prepare_call(CCLO::Options &options) {
       // determine which operand is compressed
       if (options.addr_0->type() == compressed) {
         options.compression_flags |= compressionFlags::OP0_COMPRESSED;
+        std::cout << "addr 0 is compressed " << std::endl;
       }
       if (options.addr_1->type() == compressed) {
         options.compression_flags |= compressionFlags::OP1_COMPRESSED;
+        std::cout << "addr 1 is compressed " << std::endl;
       }
       if (options.addr_2->type() == compressed) {
         options.compression_flags |= compressionFlags::RES_COMPRESSED;
+        std::cout << "addr 2 is compressed " << std::endl;
       }
     }
   } else {
@@ -1387,12 +1373,15 @@ void ACCL::prepare_call(CCLO::Options &options) {
       // determine which operand is compressed
       if (options.addr_0->type() == options.compress_dtype) {
         options.compression_flags |= compressionFlags::OP0_COMPRESSED;
+        std::cout << "addr 0 is eth compressed " << std::endl;
       }
       if (options.addr_1->type() == options.compress_dtype) {
         options.compression_flags |= compressionFlags::OP1_COMPRESSED;
+        std::cout << "addr 1 is eth compressed " << std::endl;
       }
       if (options.addr_2->type() == options.compress_dtype) {
         options.compression_flags |= compressionFlags::RES_COMPRESSED;
+        std::cout << "addr 2 is eth compressed " << std::endl;
       }
     }
   }
@@ -1446,7 +1435,6 @@ void ACCL::set_max_eager_msg_size(unsigned int value) {
   options.scenario = operation::config;
   options.cfg_function = cfgFunc::set_max_eager_msg_size;
   options.count = value;
-  std::cout << "set max eager value: " << options.count << std::endl;
   ACCLRequest *handle = call_sync(options);
   max_eager_msg_size = value;
   check_return_value("set_max_eager_msg_size", handle);
