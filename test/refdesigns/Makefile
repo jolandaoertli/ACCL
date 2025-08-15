@@ -106,7 +106,7 @@ endif
 BUILD_DIR := link_$(MODE)_$(XSA)
 XCLBIN=$(BUILD_DIR)/ccl_offload.xclbin
 
-CYT_BUILD_DIR=coyote_build_$(CCLO_STACK_TYPE)_$(BOARD)_norrsp_nocomp_opt_tlb2_eager_host_two_ila
+CYT_BUILD_DIR=coyote_build_$(CCLO_STACK_TYPE)_$(BOARD)
 CYT_BIT=$(CYT_BUILD_DIR)/bitstreams/cyt_top.bit
 
 OUTPUT_PRODUCT := $(XCLBIN)

@@ -234,7 +234,7 @@ accl_bd_wrapper accl_system(
 );
 
 
-ila_top inst_ila_top(
+/*ila_top inst_ila_top(
      .clk(aclk),
      .probe0(sq_wr.valid), //1
      .probe1(sq_wr.ready), //1
@@ -260,25 +260,29 @@ ila_top inst_ila_top(
      .probe21(axis_host_send[1].tvalid),
      .probe22(axis_host_send[1].tready),
      .probe23(axis_host_send[1].tdata),
-     .probe24(axis_card_send[0].tvalid),
-     .probe25(axis_card_send[0].tready),
-     .probe26(axis_card_send[0].tdata),
-     .probe27(axis_card_send[1].tvalid),
-     .probe28(axis_card_send[1].tready),
-     .probe29(axis_card_send[1].tdata),
+     .probe24(axis_rrsp_recv[0].tvalid),
+     .probe25(axis_rrsp_recv[0].tready),
+     .probe26(axis_rrsp_recv[0].tdata),
+     .probe27(axis_rrsp_recv[1].tvalid),
+     .probe28(axis_rrsp_recv[1].tready),
+     .probe29(axis_rrsp_recv[1].tdata),
      .probe30(axis_host_recv[0].tvalid),
      .probe31(axis_host_recv[0].tready),
      .probe32(axis_host_recv[0].tdata),
      .probe33(axis_host_recv[1].tvalid),
      .probe34(axis_host_recv[1].tready),
      .probe35(axis_host_recv[1].tdata),
-     .probe36(axis_card_recv[0].tvalid),
-     .probe37(axis_card_recv[0].tready),
-     .probe38(axis_card_recv[0].tdata),
-     .probe39(axis_card_recv[1].tvalid),
-     .probe40(axis_card_recv[1].tready),
-     .probe41(axis_card_recv[1].tdata)
- );
+     .probe36(axis_rreq_send[0].tvalid),
+     .probe37(axis_rreq_send[0].tready),
+     .probe38(axis_rreq_send[0].tdata),
+     .probe39(axis_rreq_send[1].tvalid),
+     .probe40(axis_rreq_send[1].tready),
+     .probe41(axis_rreq_send[1].tdata),
+     .probe42(axis_rrsp_recv[0].tlast),
+     .probe43(axis_rrsp_recv[1].tlast),
+     .probe44(axis_rreq_send[0].tlast),
+     .probe45(axis_rreq_send[1].tlast)
+ );*/
 
 
 
