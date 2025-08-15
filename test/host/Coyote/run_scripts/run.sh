@@ -40,8 +40,8 @@ done
 #define ACCL_BARRIER 		12
 
 ARG=" -d -f -r" # debug, hardware, and tcp/rdma flags
-TEST_MODE=(3) 
-N_ELEMENTS=(256) # 128 256 512 1024 2048 4096 8192 16384 32768 65536 131072 262144 524288 1048576
+TEST_MODE=(0) 
+N_ELEMENTS=(64) # 64 256 1024 4096 16384 65536 262144 524288 1048576 128 256 512 1024 2048 4096 8192 16384 32768 65536 131072 262144 524288 1048576
 NRUN=(1) # number of runs
 HOST=(1)
 PROTOC=(0) # eager=0, rendezevous=1
@@ -57,8 +57,8 @@ for NP in `seq $NUM_PROCESS $NUM_PROCESS`; do
 				for P in ${PROTOC[@]}; do
 					N=$N_ELE
 					echo "mpirun -n $NP -f $HOST_FILE --iface ens4 $EXEC $ARG -z $H -y $MODE -c $N -l $FPGA_FILE -p $P -n $NRUN &"
-					/mnt/scratch/zhe/mpich/install/bin/mpirun -n $NP -f $HOST_FILE --iface ens4f0 -outfile-pattern "./accl_log/rank_%r_M_${MODE}_N_${N}_H_${H}_P_${P}_stdout" -errfile-pattern "./accl_log/rank_%r_M_${MODE}_N_${N}_H_${H}_P_${P}_stdout" $EXEC $ARG -z $H -y $MODE -c $N -l $FPGA_FILE -p $P -n $NRUN &
-					SLEEPTIME=2
+					/mnt/scratch/zhe/mpich/install/bin/mpirun -n $NP -f $HOST_FILE --iface enp65s0f0np0 -outfile-pattern "./accl_log/rank_%r_M_${MODE}_N_${N}_H_${H}_P_${P}_stdout" -errfile-pattern "./accl_log/rank_%r_M_${MODE}_N_${N}_H_${H}_P_${P}_stdout" $EXEC $ARG -z $H -y $MODE -c $N -l $FPGA_FILE -p $P -n $NRUN -e &
+					SLEEPTIME=10
 					sleep $SLEEPTIME
 					parallel-ssh -H "$HOST_LIST" "kill -9 \$(ps -aux | grep accl_on_coyote | awk '{print \$2}')"
 					parallel-ssh -H "$HOST_LIST" "dmesg | grep "fpga_tlb_miss_isr" >$(pwd)/accl_log/tlb_miss.log"

@@ -777,15 +777,12 @@ ACCLRequest *barrier(communicatorId comm_id = GLOBAL_COMM,
   template <typename dtype>
   std::unique_ptr<Buffer<dtype>> create_buffer_host(size_t length, dataType type) {
     if (sim_mode) {
-      std::cout << "using sim buffer" << std::endl;
       return std::unique_ptr<Buffer<dtype>>(new SimBuffer<dtype>(
           length, type, static_cast<SimDevice *>(cclo)->get_context(), true));
     } else if (cclo->get_device_type() == CCLO::xrt_device) {
-      std::cout << "using xrt buffer" << std::endl;
       return std::unique_ptr<Buffer<dtype>>(new XRTBuffer<dtype>(
           length, type, *(static_cast<XRTDevice *>(cclo)->get_device()), xrt::bo::flags::host_only, (xrt::memory_group)0));
     } else {
-      std::cout << "using coyote buffer" << std::endl;
       return std::unique_ptr<Buffer<dtype>>(new CoyoteBuffer<dtype>(length, type, cclo));
     }
   }
