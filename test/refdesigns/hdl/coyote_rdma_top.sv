@@ -45,10 +45,6 @@ module design_user_logic_c0_0 (
     AXI4SR.s                    axis_host_recv [N_STRM_AXI],
     AXI4SR.m                    axis_host_send [N_STRM_AXI],
 
-    // CARD DATA STREAMS
-    AXI4SR.s                    axis_card_recv [N_CARD_AXI],
-    AXI4SR.m                    axis_card_send [N_CARD_AXI],
-
     // RDMA DATA STREAMS REQUESTER
     AXI4SR.s                    axis_rreq_recv [N_RDMA_AXI],
     AXI4SR.m                    axis_rreq_send [N_RDMA_AXI],
@@ -66,9 +62,7 @@ module design_user_logic_c0_0 (
 always_comb notify.tie_off_m();
 always_comb axis_rrsp_send[0].tie_off_m();
 always_comb axis_rrsp_send[1].tie_off_m();
-always_comb axis_card_recv[2].tie_off_s();
 always_comb axis_host_recv[2].tie_off_s();
-
 
 /* -- USER LOGIC -------------------------------------------------------- */
 
@@ -146,27 +140,6 @@ accl_bd_wrapper accl_system(
     .m_axis_host_2_tvalid(axis_host_send[2].tvalid),
     .m_axis_host_2_tdest(),
 
-    .m_axis_card_0_tdata(axis_card_send[0].tdata),
-    .m_axis_card_0_tkeep(axis_card_send[0].tkeep),
-    .m_axis_card_0_tlast(axis_card_send[0].tlast),
-    .m_axis_card_0_tready(axis_card_send[0].tready),
-    .m_axis_card_0_tvalid(axis_card_send[0].tvalid),
-    .m_axis_card_0_tdest(),
-
-    .m_axis_card_1_tdata(axis_card_send[1].tdata),
-    .m_axis_card_1_tkeep(axis_card_send[1].tkeep),
-    .m_axis_card_1_tlast(axis_card_send[1].tlast),
-    .m_axis_card_1_tready(axis_card_send[1].tready),
-    .m_axis_card_1_tvalid(axis_card_send[1].tvalid),
-    .m_axis_card_1_tdest(),
-
-    .m_axis_card_2_tdata(axis_card_send[2].tdata),
-    .m_axis_card_2_tkeep(axis_card_send[2].tkeep),
-    .m_axis_card_2_tlast(axis_card_send[2].tlast),
-    .m_axis_card_2_tready(axis_card_send[2].tready),
-    .m_axis_card_2_tvalid(axis_card_send[2].tvalid),
-    .m_axis_card_2_tdest(),
-
     .s_axis_host_0_tdata(axis_host_recv[0].tdata),
     .s_axis_host_0_tkeep(axis_host_recv[0].tkeep),
     .s_axis_host_0_tlast(axis_host_recv[0].tlast),
@@ -178,19 +151,7 @@ accl_bd_wrapper accl_system(
     .s_axis_host_1_tlast(axis_host_recv[1].tlast),
     .s_axis_host_1_tready(axis_host_recv[1].tready),
     .s_axis_host_1_tvalid(axis_host_recv[1].tvalid),
-
-    .s_axis_card_0_tdata(axis_card_recv[0].tdata),
-    .s_axis_card_0_tkeep(axis_card_recv[0].tkeep),
-    .s_axis_card_0_tlast(axis_card_recv[0].tlast),
-    .s_axis_card_0_tready(axis_card_recv[0].tready),
-    .s_axis_card_0_tvalid(axis_card_recv[0].tvalid),
-
-    .s_axis_card_1_tdata(axis_card_recv[1].tdata),
-    .s_axis_card_1_tkeep(axis_card_recv[1].tkeep),
-    .s_axis_card_1_tlast(axis_card_recv[1].tlast),
-    .s_axis_card_1_tready(axis_card_recv[1].tready),
-    .s_axis_card_1_tvalid(axis_card_recv[1].tvalid),
-
+    
     .cyt_rreq_recv_0_tdata(axis_rreq_recv[0].tdata),
     .cyt_rreq_recv_0_tkeep(axis_rreq_recv[0].tkeep),
     .cyt_rreq_recv_0_tlast(axis_rreq_recv[0].tlast),
@@ -248,40 +209,39 @@ accl_bd_wrapper accl_system(
      .probe9(rq_rd.valid), //1
      .probe10(rq_rd.ready), //1
      .probe11(rq_rd.data), //128
-     .probe12(cq_rd.data), //32
-     .probe13(cq_rd.valid),
-     .probe14(cq_rd.ready),
-     .probe15(cq_wr.data), //32
-     .probe16(cq_wr.valid),
-     .probe17(cq_wr.ready),
-     .probe18(axis_host_send[0].tvalid),
-     .probe19(axis_host_send[0].tready),
-     .probe20(axis_host_send[0].tdata),
-     .probe21(axis_host_send[1].tvalid),
-     .probe22(axis_host_send[1].tready),
-     .probe23(axis_host_send[1].tdata),
-     .probe24(axis_rrsp_recv[0].tvalid),
-     .probe25(axis_rrsp_recv[0].tready),
-     .probe26(axis_rrsp_recv[0].tdata),
-     .probe27(axis_rrsp_recv[1].tvalid),
-     .probe28(axis_rrsp_recv[1].tready),
-     .probe29(axis_rrsp_recv[1].tdata),
-     .probe30(axis_host_recv[0].tvalid),
-     .probe31(axis_host_recv[0].tready),
-     .probe32(axis_host_recv[0].tdata),
-     .probe33(axis_host_recv[1].tvalid),
-     .probe34(axis_host_recv[1].tready),
-     .probe35(axis_host_recv[1].tdata),
-     .probe36(axis_rreq_send[0].tvalid),
-     .probe37(axis_rreq_send[0].tready),
-     .probe38(axis_rreq_send[0].tdata),
-     .probe39(axis_rreq_send[1].tvalid),
-     .probe40(axis_rreq_send[1].tready),
-     .probe41(axis_rreq_send[1].tdata),
-     .probe42(axis_rrsp_recv[0].tlast),
-     .probe43(axis_rrsp_recv[1].tlast),
-     .probe44(axis_rreq_send[0].tlast),
-     .probe45(axis_rreq_send[1].tlast)
+     .probe12(axis_rreq_send[0].tvalid),
+     .probe13(axis_rreq_send[0].tready),
+     .probe14(axis_rreq_send[1].tvalid),
+     .probe15(axis_rreq_send[1].tready),
+     .probe16(axis_rrsp_recv[0].tvalid),
+     .probe17(axis_rrsp_recv[0].tready),
+     .probe18(axis_rrsp_recv[1].tvalid),
+     .probe19(axis_rrsp_recv[1].tready),
+     .probe20(axis_rreq_send[0].tlast),
+     .probe21(axis_rreq_send[1].tlast),
+     .probe22(axis_rrsp_recv[0].tlast),
+     .probe23(axis_rrsp_recv[1].tlast),
+     .probe24(cq_rd.data), //32
+     .probe25(cq_rd.valid),
+     .probe26(cq_rd.ready),
+     .probe27(cq_wr.data), //32
+     .probe28(cq_wr.valid),
+     .probe29(cq_wr.ready),
+     .probe30(axis_host_send[0].tvalid),
+     .probe31(axis_host_send[0].tready),
+     .probe32(axis_host_send[0].tdata),
+     .probe33(axis_host_send[1].tvalid),
+     .probe34(axis_host_send[1].tready),
+     .probe35(axis_host_send[1].tdata),
+     .probe36(axis_host_send[2].tvalid),
+     .probe37(axis_host_send[2].tready),
+     .probe38(axis_host_send[2].tdata),
+     .probe39(axis_host_recv[0].tvalid),
+     .probe40(axis_host_recv[0].tready),
+     .probe41(axis_host_recv[0].tdata),
+     .probe42(axis_host_recv[1].tvalid),
+     .probe43(axis_host_recv[1].tready),
+     .probe44(axis_host_recv[1].tdata)
  );*/
 
 
@@ -290,10 +250,6 @@ accl_bd_wrapper accl_system(
 assign axis_host_send[0].tid = 0;
 assign axis_host_send[1].tid = 0;
 assign axis_host_send[2].tid = 0;
-
-assign axis_card_send[0].tid = 0;
-assign axis_card_send[1].tid = 0;
-assign axis_card_send[2].tid = 0;
 
 assign axis_rreq_send[0].tid = 0;
 assign axis_rreq_send[1].tid = 0;
