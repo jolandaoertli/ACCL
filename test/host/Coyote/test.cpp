@@ -561,7 +561,7 @@ void test_sendrcv(ACCL::ACCL &accl, options_t &options) {
 		return;
 	}
 
-	auto op_buf = accl.create_coyotebuffer<float>(bufsize, dataType::int32);
+	auto op_buf = accl.create_coyotebuffer<int>(bufsize, dataType::int32);
 	//std::cout << "Buffer address: " << op_buf.get()->buffer() << std::endl;
 	
 	for (int n = 0; n < options.nruns; n++)
@@ -976,8 +976,8 @@ void test_reduce(ACCL::ACCL &accl, options_t &options, int root,
 		for (int i = 0; i < count; i++) op_buf.get()->buffer()[i] = i;
 		for (int i = 0; i < count; i++) res_buf.get()->buffer()[i] = 0;
 
-		if (options.host == 1){ op_buf->sync_to_device(); }
-		if (options.host == 1){ res_buf->sync_to_device(); }
+		if (options.host == 0){ op_buf->sync_to_device(); }
+		if (options.host == 0){ res_buf->sync_to_device(); }
 
 		test_debug("Reduce data to " + std::to_string(root) + "...", options);
 
