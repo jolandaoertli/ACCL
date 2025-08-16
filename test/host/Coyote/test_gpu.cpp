@@ -29,6 +29,7 @@
 #include <string>
 #include <signal.h>
 
+//IMPORTANT: compile with cmakeLists_GPU and gpu_en in coyote buffer
 
 // Set the tolerance for compressed datatypes high enough, since we do currently
 // not replicate the float32 -> float16 conversion for our reference results
