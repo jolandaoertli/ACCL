@@ -61,8 +61,6 @@ GEN_KERNEL_TCL := tcl/generate_kernel.tcl
 REBUILD_BD_TCL := tcl/rebuild_bd.tcl tcl/control_bd.tcl tcl/rx_bd.tcl tcl/tx_bd.tcl
 
 ifeq ($(MODE), simdll)
-	FPGAPART=xcu55c-fsvh2892-2L-e
-	BOARD=u55c
 	BUILD_FOLDER = $(STACK_TYPE)_sim
 else
 	BUILD_FOLDER = $(STACK_TYPE)_$(EN_DMA)$(EN_ARITH)$(EN_COMPRESS)$(EN_EXT_KRNL)$(MB_DEBUG_LEVEL)_$(FPGAPART)

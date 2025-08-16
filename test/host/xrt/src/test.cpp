@@ -270,7 +270,7 @@ TEST_F(ACCLTest, test_sendrcv_basic) {
   }
 }
 
-/*TEST_F(ACCLTest, test_sendrcv_bo) {
+TEST_F(ACCLTest, test_sendrcv_bo) {
   if(::size == 1){
     GTEST_SKIP() << "Skipping send/recv test on single-node setup";
   }
@@ -330,7 +330,7 @@ TEST_F(ACCLTest, test_sendrcv_basic) {
 
   std::free(data);
   std::free(validation_data);
-}*/
+}
 
 TEST_F(ACCLTest, test_sendrcv) {
   if(::size == 1){
@@ -456,7 +456,7 @@ TEST_F(ACCLTest, test_sendrcv_stream) {
 
 }
 
-/*TEST_F(ACCLTest, test_stream_put) {
+TEST_F(ACCLTest, test_stream_put) {
   if(::size == 1){
     GTEST_SKIP() << "Skipping send/recv test on single-node setup";
   }
@@ -532,7 +532,7 @@ TEST_F(ACCLTest, test_sendrcv_compressed) {
     EXPECT_TRUE(is_close((*res_buf)[i], (*op_buf)[i], FLOAT16RTOL, FLOAT16ATOL));
   }
 
-}*/
+}
 
 TEST_P(ACCLRootTest, test_bcast) {
   unsigned int count = options.count;
@@ -558,7 +558,7 @@ TEST_P(ACCLRootTest, test_bcast) {
   }
 }
 
-/*TEST_P(ACCLRootTest, test_bcast_compressed) {
+TEST_P(ACCLRootTest, test_bcast_compressed) {
   unsigned int count = options.count;
   auto op_buf = accl->create_buffer<float>(count, dataType::float32);
   auto res_buf = accl->create_buffer<float>(count, dataType::float32);
@@ -582,7 +582,7 @@ TEST_P(ACCLRootTest, test_bcast) {
   } else {
     EXPECT_TRUE(true);
   }
-}*/
+}
 
 TEST_P(ACCLRootTest, test_scatter) {
   unsigned int count = options.count;
@@ -600,7 +600,7 @@ TEST_P(ACCLRootTest, test_scatter) {
   }
 }
 
-/*TEST_P(ACCLRootTest, test_scatter_compressed) {
+TEST_P(ACCLRootTest, test_scatter_compressed) {
   unsigned int count = options.count;
   unsigned int count_bytes = count * dataTypeSize.at(dataType::float32) / 8;
 
@@ -616,7 +616,7 @@ TEST_P(ACCLRootTest, test_scatter) {
     float ref = (*op_buf)[i +::rank * count];
     EXPECT_TRUE(is_close(res, ref, FLOAT16RTOL, FLOAT16ATOL));
   }
-}*/
+}
 
 TEST_P(ACCLRootTest, test_gather) {
   unsigned int count = options.count;
@@ -644,7 +644,7 @@ TEST_P(ACCLRootTest, test_gather) {
   }
 }
 
-/*TEST_P(ACCLRootTest, test_gather_compressed) {
+TEST_P(ACCLRootTest, test_gather_compressed) {
   unsigned int count = options.count;
   unsigned int count_bytes = count * dataTypeSize.at(dataType::float32) / 8;
 
@@ -670,7 +670,7 @@ TEST_P(ACCLRootTest, test_gather) {
   } else {
     EXPECT_TRUE(true);
   }
-}*/
+}
 
 TEST_F(ACCLTest, test_alltoall) {
   if(!options.cyt_rdma){
@@ -709,7 +709,7 @@ TEST_F(ACCLTest, test_allgather) {
   }
 }
 
-/*TEST_F(ACCLTest, test_allgather_compressed) {
+TEST_F(ACCLTest, test_allgather_compressed) {
   unsigned int count = options.count;
   unsigned int count_bytes = count * dataTypeSize.at(dataType::float32) / 8;
 
@@ -725,7 +725,7 @@ TEST_F(ACCLTest, test_allgather) {
   for (unsigned int i = 0; i < count *::size; ++i) {
     EXPECT_TRUE(is_close((*res_buf)[i], host_op_buf.get()[i], FLOAT16RTOL, FLOAT16ATOL));
   }
-}*/
+}
 
 TEST_F(ACCLTest, test_allgather_comms) {
   unsigned int count = options.count;
@@ -889,7 +889,7 @@ TEST_P(ACCLRootFuncTest, test_reduce) {
   }
 }
 
-/*TEST_F(ACCLTest, test_reduce_h2h) {
+TEST_F(ACCLTest, test_reduce_h2h) {
   int root = 0;
   reduceFunction function = reduceFunction::SUM;
 
@@ -915,9 +915,9 @@ TEST_P(ACCLRootFuncTest, test_reduce) {
   } else {
     EXPECT_TRUE(true);
   }
-}*/
+}
 
-/*TEST_P(ACCLRootFuncTest, test_reduce_compressed) {
+TEST_P(ACCLRootFuncTest, test_reduce_compressed) {
   int root = std::get<0>(GetParam());
   reduceFunction function = std::get<1>(GetParam());
   if((function != reduceFunction::SUM) && (function != reduceFunction::MAX)){
@@ -945,7 +945,7 @@ TEST_P(ACCLRootFuncTest, test_reduce) {
   } else {
     EXPECT_TRUE(true);
   }
-}*/
+}
 
 TEST_P(ACCLRootFuncTest, test_reduce_stream2mem) {
   int root = std::get<0>(GetParam());
@@ -1070,7 +1070,7 @@ TEST_P(ACCLFuncTest, test_reduce_scatter) {
   }
 }
 
-/*TEST_P(ACCLFuncTest, test_reduce_scatter_compressed) {
+TEST_P(ACCLFuncTest, test_reduce_scatter_compressed) {
   reduceFunction function = GetParam();
   if((function != reduceFunction::SUM) && (function != reduceFunction::MAX)){
     GTEST_SKIP() << "Unrecognized reduction function";
@@ -1092,7 +1092,7 @@ TEST_P(ACCLFuncTest, test_reduce_scatter) {
     ref = (function == reduceFunction::MAX) ? (*op_buf)[i+ ::rank *count] : (*op_buf)[i+ ::rank *count] *::size;
     EXPECT_TRUE(is_close(res, ref, FLOAT16RTOL, FLOAT16ATOL));
   }
-}*/
+}
 
 TEST_P(ACCLFuncTest, test_allreduce) {
   reduceFunction function = GetParam();
@@ -1135,7 +1135,7 @@ TEST_F(ACCLTest, test_allreduce_h2h) {
   }
 }
 
-/*TEST_P(ACCLFuncTest, test_allreduce_compressed) {
+TEST_P(ACCLFuncTest, test_allreduce_compressed) {
   reduceFunction function = GetParam();
   if((function != reduceFunction::SUM) && (function != reduceFunction::MAX)){
     GTEST_SKIP() << "Unrecognized reduction function";
@@ -1154,7 +1154,7 @@ TEST_F(ACCLTest, test_allreduce_h2h) {
     ref = (function == reduceFunction::MAX) ? (*op_buf)[i] : (*op_buf)[i] *::size;
     EXPECT_TRUE(is_close(res, ref, FLOAT16RTOL, FLOAT16ATOL));
   }
-}*/
+}
 
 TEST_F(ACCLTest, test_barrier) {
   if(!options.cyt_rdma){
