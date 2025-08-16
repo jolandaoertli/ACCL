@@ -1338,15 +1338,12 @@ void ACCL::prepare_call(CCLO::Options &options) {
       // determine which operand is compressed
       if (options.addr_0->type() == compressed) {
         options.compression_flags |= compressionFlags::OP0_COMPRESSED;
-        std::cout << "addr 0 is compressed " << std::endl;
       }
       if (options.addr_1->type() == compressed) {
         options.compression_flags |= compressionFlags::OP1_COMPRESSED;
-        std::cout << "addr 1 is compressed " << std::endl;
       }
       if (options.addr_2->type() == compressed) {
         options.compression_flags |= compressionFlags::RES_COMPRESSED;
-        std::cout << "addr 2 is compressed " << std::endl;
       }
     }
   } else {
@@ -1373,15 +1370,12 @@ void ACCL::prepare_call(CCLO::Options &options) {
       // determine which operand is compressed
       if (options.addr_0->type() == options.compress_dtype) {
         options.compression_flags |= compressionFlags::OP0_COMPRESSED;
-        std::cout << "addr 0 is eth compressed " << std::endl;
       }
       if (options.addr_1->type() == options.compress_dtype) {
         options.compression_flags |= compressionFlags::OP1_COMPRESSED;
-        std::cout << "addr 1 is eth compressed " << std::endl;
       }
       if (options.addr_2->type() == options.compress_dtype) {
         options.compression_flags |= compressionFlags::RES_COMPRESSED;
-        std::cout << "addr 2 is eth compressed " << std::endl;
       }
     }
   }

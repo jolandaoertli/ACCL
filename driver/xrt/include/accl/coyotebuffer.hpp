@@ -25,6 +25,11 @@
 #include <cstdlib>
 #include <cstring>
 #include <iomanip>
+#define GPU_EN 0
+#if GPU_EN == 1
+  #include <hip/hip_runtime.h>
+  #define DEFAULT_GPU_ID 0
+#endif
 
 /** @file coyotebuffer.hpp */
 
@@ -57,7 +62,12 @@ template <typename dtype> class CoyoteBuffer : public Buffer<dtype> {
       size_t page_size = 1ULL << 21;
       this->buffer_size = length * sizeof(dtype);
       this->n_pages = (buffer_size + page_size - 1) / page_size;
-      this->aligned_buffer = (dtype *)this->device->coyote_proc->getMem({coyote::CoyoteAllocType::HPF, this->buffer_size, true});
+      #if GPU_EN == 1
+        if (hipSetDevice(DEFAULT_GPU_ID)) { throw std::runtime_error("Couldn't select GPU!"); }
+        this->aligned_buffer = (dtype *)this->device->coyote_proc->getMem({coyote::CoyoteAllocType::GPU, static_cast<uint32_t>(this->buffer_size), true, DEFAULT_GPU_ID});
+      #else
+       this->aligned_buffer = (dtype *)this->device->coyote_proc->getMem({coyote::CoyoteAllocType::HPF, this->buffer_size, true});
+      #endif
 
       this->update_buffer(this->aligned_buffer, (addr_t)this->aligned_buffer); 
 
